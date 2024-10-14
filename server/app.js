@@ -10,7 +10,7 @@ app.get("/api", (req, res, next) => {
 
 app.get("/api/topics", getTopics)
 
-app.use("/*", (req, res) => {
+app.all("/*", (req, res) => {
     res.status(404).send({msg: "Route Not Found"})
 })
 

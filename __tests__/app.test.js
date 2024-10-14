@@ -36,7 +36,6 @@ describe("Topics", () => {
             .then(({body}) => {
                 const topics = body.topics
                 topics.forEach(topic => {
-                    console.log(Object.keys(topic))
                     expect(Object.keys(topic)).toEqual([ "slug", "description"])
                 })
             })
