@@ -3,6 +3,7 @@ const request = require("supertest");
 const db = require("../db/connection.js");
 const data = require("../db/data/test-data/index.js");
 const seed = require("../db/seeds/seed.js");
+const expectedEndpoints = require("../endpoints.json")
 
 beforeEach(() => seed(data));
 afterAll(() => db.end());
@@ -39,6 +40,17 @@ describe("Topics", () => {
                     expect(Object.keys(topic)).toEqual([ "slug", "description"])
                 })
             })
+        })
+    })
+})
+
+describe("/api", () => {
+    test("GET: 200 - returns an object of all other endpoints as nested object", () => {
+        return request(app).get("/api")
+        .expect(200)
+        .then(({body}) => {
+            const receivedEndpoints = body.endpoints
+            expect(receivedEndpoints).toEqual(expectedEndpoints)
         })
     })
 })
