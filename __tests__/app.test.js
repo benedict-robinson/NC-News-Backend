@@ -17,3 +17,28 @@ describe("Invalid Enpoints Error", () => {
         })
     })
 })
+
+describe("Topics", () => {
+    describe("GET", () => {
+        test("GET: 200 - should respond with an array of all topics", () => {
+            return request(app).get("/api/topics")
+            .expect(200)
+            .then(({body}) => {
+                const topics = body.topics
+                expect(Array.isArray(topics))
+                expect(topics.length).toBe(3)
+            })
+        })
+        test("GET: 200 - each topic should have a key of 'description' and 'slug'", () => {
+            return request(app).get("/api/topics")
+            .expect(200)
+            .then(({body}) => {
+                const topics = body.topics
+                topics.forEach(topic => {
+                    console.log(Object.keys(topic))
+                    expect(Object.keys(topic)).toEqual([ "slug", "description"])
+                })
+            })
+        })
+    })
+})
