@@ -108,11 +108,7 @@ describe("Articles", () => {
             return request(app).get("/api/articles")
             .expect(200)
             .then(({body}) => {
-                const articlesDate = body.articles.map(article => {
-                    return article.created_at
-                })
-                const testOfOrder = checkIfOrderedMostRecent(articlesDate)
-                expect(testOfOrder).toBe(true)
+                expect(body.articles).toBeSorted({key: "created_at", descending: true})
             })
         })
     })
@@ -178,10 +174,7 @@ describe("Articles", () => {
             return request(app).get("/api/articles/1/comments")
             .expect(200)
             .then(({body}) => {
-                const commentsDates = body.comments.map(comment => {
-                    return comment.created_at
-                })
-                expect(checkIfOrderedMostRecent(commentsDates)).toBe(true)
+                expect(body.comments).toBeSorted({key: 'created_at',descending: true})
             })
         })
     })
