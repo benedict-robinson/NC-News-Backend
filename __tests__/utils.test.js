@@ -103,7 +103,7 @@ describe("formatComments", () => {
     expect(formattedComments[0].created_at).toEqual(new Date(timestamp));
   });
 });
-describe.only("commentCounter", () => {
+describe("commentCounter", () => {
   test("returns a new array", () => {
     expect(Array.isArray(commentCounter([]))).toBe(true)
   })
