@@ -212,6 +212,26 @@ describe("Articles", () => {
     })
 })
 
+describe("Comments - POST/PATCH/DELETE", () => {
+    describe("POST", () => {
+        test("POST: 201 - should return the posted comment", () => {
+            const newComment = {
+                body: "Is this the same Mitch that runs the seminars?",
+                votes: 0,
+                author: "rogersop",
+                article_id: 4,
+                created_at: 1728989180007,
+            }
+            return request(app).post(`/api/articles/${newComment.article_id}/comment`)
+            .send(newComment)
+            .expect(201)
+            .then(({body}) => {
+                console.log(body)
+            })
+        })
+    })
+})
+
 /*
  errors
  - invalid id type: ie string
