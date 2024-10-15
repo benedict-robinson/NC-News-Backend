@@ -235,6 +235,23 @@ describe("Comments - POST/PATCH/DELETE", () => {
                 })
             })
         })
+        test("POST: 201 - should ignore unnecessary send properties", () => {
+            const comment = {
+                body: "Is this the same Mitch that runs the seminars?",
+                author: "rogersop",
+                uselessKey: "not important at all"
+            }
+            return request(app).post(`/api/articles/4/comments`)
+            .send(comment)
+            .expect(201)
+            .then(({body}) => {
+                return db.query(`SELECT * FROM comments ORDER BY created_at DESC;`)
+                .then(({rows}) => {
+                    expect(rows).toHaveLength(19)
+                    expect(rows[0].body).toBe("Is this the same Mitch that runs the seminars?")
+                })
+            })
+        })
         test("POST: 400 - returns Error 400 Bad Request and endpoint contains invalid article id", () => {
             const comment = {
                 body: "Is this the same Mitch that runs the seminars?",
@@ -279,6 +296,18 @@ describe("Comments - POST/PATCH/DELETE", () => {
             .expect(400)
             .then(({body}) => {
                 expect(body.msg).toBe("Bad Request")
+            })
+        })
+        test("POST: 404 Username Does Not Exist - responds with 404 when user property does not exist in user table", () => {
+            const comment = {
+                body: "Is this the same Mitch that runs the seminars?",
+                author: "brigadierBenedict",
+            }
+            return request(app).post(`/api/articles/3/comments`)
+            .send(comment)
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toBe("Username Not Found")
             })
         })
     })
