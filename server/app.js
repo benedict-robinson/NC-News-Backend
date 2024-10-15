@@ -4,6 +4,9 @@ const app = express()
 const { getApi } = require("./controllers/api-controller.js")
 const { getTopics } = require("./controllers/topics-controller.js")
 const { getArticles, getArticleById, getCommentsByArticle } = require("./controllers/articles-controller.js")
+const { postComment } = require("./controllers/comments-controller.js")
+
+app.use(express.json())
 
 app.get("/api", getApi)
 
@@ -15,12 +18,14 @@ app.get("/api/articles/:article_id", getArticleById)
 
 app.get("/api/articles/:article_id/comments", getCommentsByArticle)
 
+app.post("/api/articles/:article_id/comments", postComment)
+
 app.all("/*", (req, res) => {
     res.status(404).send({msg: "Route Not Found"})
 })
 
 app.use((err, req, res, next) => {
-  if (err.code === "42703" || err.code === '22P02') {
+  if (err.code === "42703" || err.code === '22P02' || err.code === "23502") {
     res.status(400).send({msg: "Bad Request"})
   }
   else {

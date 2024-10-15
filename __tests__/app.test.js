@@ -190,7 +190,6 @@ describe("Articles", () => {
             return request(app).get("/api/articles/not-an-id/comments")
             .expect(400)
             .then(({body}) => {
-                console.log(body.msg)
                expect(body.msg).toBe('Bad Request') 
             })
         })
@@ -207,6 +206,86 @@ describe("Articles", () => {
             .then(({body}) => {
                 expect(body.comments).toHaveLength(0)
                 expect(body.msg).toBe("No Comments Yet")
+            })
+        })
+    })
+})
+
+describe("Comments - POST/PATCH/DELETE", () => {
+    describe("POST", () => {
+        test("POST: 201 - should return the posted comment", () => {
+            const comment = {
+                body: "Is this the same Mitch that runs the seminars?",
+                author: "rogersop",
+            }
+            return request(app).post(`/api/articles/4/comments`)
+            .send(comment)
+            .expect(201)
+            .then(({body}) => {
+               const objKeys  = ["comment_id", "body", "article_id", "author", "votes", "created_at"]
+                expect(Object.keys(body.comment)).toEqual(objKeys)
+            })
+        })
+        test("POST: 201 - should add comment to comment table", () => {
+            const comment = {
+                body: "Is this the same Mitch that runs the seminars?",
+                author: "rogersop",
+            }
+            return request(app).post(`/api/articles/4/comments`)
+            .send(comment)
+            .expect(201)
+            .then(({body}) => {
+                return db.query(`SELECT * FROM comments ORDER BY created_at DESC;`)
+                .then(({rows}) => {
+                    expect(rows).toHaveLength(19)
+                    expect(rows[0].body).toBe("Is this the same Mitch that runs the seminars?")
+                })
+            })
+        })
+        test("POST: 400 - returns Error 400 Bad Request and endpoint contains invalid article id", () => {
+            const comment = {
+                body: "Is this the same Mitch that runs the seminars?",
+                author: "rogersop",
+            }
+            return request(app).post(`/api/articles/not-an-id/comments`)
+            .send(comment)
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toBe("Bad Request")
+            })
+        })
+        test("POST: 404 - returns Error 404 Not Found when article id does not exist", () => {
+            const comment = {
+                body: "Is this the same Mitch that runs the seminars?",
+                author: "rogersop",
+            }
+            return request(app).post(`/api/articles/9999/comments`)
+            .send(comment)
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toBe("Not Found")
+            })
+        })
+        test("POST: 400 - responds with 400 error when attempting to comment without required porperties (body)", () => {
+            const comment = {
+                body: "Is this the same Mitch that runs the seminars?"
+            }
+            return request(app).post(`/api/articles/4/comments`)
+            .send(comment)
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toBe("Bad Request")
+            })
+        })
+        test("POST: 400 - responds with 400 error when attempting to comment without required porperties (author)", () => {
+            const comment = {
+                author: 'rogersop'
+            }
+            return request(app).post(`/api/articles/4/comments`)
+            .send(comment)
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toBe("Bad Request")
             })
         })
     })
