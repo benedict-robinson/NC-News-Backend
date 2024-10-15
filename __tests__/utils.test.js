@@ -2,6 +2,7 @@ const {
   convertTimestampToDate,
   createRef,
   formatComments,
+  commentCounter
 } = require("../db/seeds/utils");
 
 describe("convertTimestampToDate", () => {
@@ -102,3 +103,62 @@ describe("formatComments", () => {
     expect(formattedComments[0].created_at).toEqual(new Date(timestamp));
   });
 });
+describe("commentCounter", () => {
+  test("returns a new array", () => {
+    expect(Array.isArray(commentCounter([]))).toBe(true)
+  })
+  test("returns an array of objects with the article_id as the key and a count of the comments as the value", () => {
+    const input = [
+      {article_id: 1,
+        comment_id: 1
+      },
+      {article_id: 2,
+        comment_id: null
+      },
+      {article_id: 3,
+        comment_id: 2
+      },
+      {article_id: 1,
+        comment_id: 3
+      }
+    ]
+    const output = [
+      {article_id: 1, comment_count: 2},
+      {article_id: 2, comment_count: 0},
+      {article_id: 3, comment_count: 1}
+    ]
+    expect(commentCounter(input)).toEqual(output)
+  })
+  test("is a pure function - does mutate original", () => {
+    const input = [
+      {article_id: 1,
+        comment_id: 1
+      },
+      {article_id: 2,
+        comment_id: null
+      },
+      {article_id: 3,
+        comment_id: 2
+      },
+      {article_id: 1,
+        comment_id: 3
+      }
+    ]
+    const control =  [
+      {article_id: 1,
+        comment_id: 1
+      },
+      {article_id: 2,
+        comment_id: null
+      },
+      {article_id: 3,
+        comment_id: 2
+      },
+      {article_id: 1,
+        comment_id: 3
+      }
+    ]
+    commentCounter(input)
+    expect(input).toEqual(control)
+  })
+})
