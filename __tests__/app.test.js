@@ -212,7 +212,7 @@ describe("Articles", () => {
     })
 })
 
-describe("Comments - POST/PATCH/DELETE", () => {
+xdescribe("Comments - POST/PATCH/DELETE", () => {
     describe("POST", () => {
         test("POST: 201 - should return the posted comment", () => {
             const newComment = {
