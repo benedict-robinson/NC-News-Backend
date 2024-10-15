@@ -12,7 +12,6 @@ exports.selectCommentsByArticle = (id) => {
         return Promise.all([rows, findArticle])
     })
     .then((dataArr) => {
-        console.log(dataArr)
         const rows = dataArr[0]
         const article = dataArr[1]
         if (rows.length === 0 && !article) {
