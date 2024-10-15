@@ -283,10 +283,89 @@ describe("Comments - POST/PATCH/DELETE", () => {
         })
     })
 })
-
-/*
- errors
- - invalid id type: ie string
- - article id doesnt exist
- - article id exists but no comments
- */
+describe("Votes", () => {
+    describe("PATCH - articles/:article_id", () => {
+        test("PATCH: 200 - responds with updated article", () => {
+            const voteIncrease = { inc_vote: 17 }
+            return request(app).patch("/api/articles/4")
+            .send(voteIncrease)
+            .expect(200)
+            .then(({body}) => {
+                const article = body.article
+                const keys = ["article_id", "title", "topic", "author", "body", "created_at", "votes", "article_img_url"]
+                expect(Object.keys(article)).toEqual(keys)
+                expect(typeof article.article_id).toBe("number")
+                expect(typeof article.author).toBe("string")
+                expect(typeof article.title).toBe("string")
+                expect(typeof article.topic).toBe("string")
+                expect(typeof article.votes).toBe("number")
+                expect(typeof article.body).toBe("string")
+            })
+        })
+        test("PATCH: 200 - responds with an updated article with votes increased by send request", () => {
+            const voteIncrease = { inc_vote: 17 }
+            return request(app).patch("/api/articles/4")
+            .send(voteIncrease)
+            .expect(200)
+            .then(({body}) => {
+                expect(body.article.votes).toBe(17)
+            })
+        })
+        test("PATCH: 200 - responds with an updated article with votes decreased by send request if negative", () => {
+            const voteIncrease = { inc_vote: -20 }
+            return request(app).patch("/api/articles/1")
+            .send(voteIncrease)
+            .expect(200)
+            .then(({body}) => {
+                expect(body.article.votes).toBe(80)
+            })
+        })
+        test("PATCH: 200 - responds with 0 votes when the vote decrease takes total into negatives", () => {
+            const voteIncrease = { inc_vote: -120 }
+            return request(app).patch("/api/articles/1")
+            .send(voteIncrease)
+            .expect(200)
+            .then(({body}) => {
+                expect(body.article.votes).toBe(0)
+            })
+        })
+        test("PATCH: 200 - ignores unnecessary send properties and responds with an updated article", () => {
+            const voteIncrease = { inc_vote: 17, not_a_key: "nothing important" }
+            return request(app).patch("/api/articles/4")
+            .send(voteIncrease)
+            .expect(200)
+            .then(({body}) => {
+                expect(body.article.votes).toBe(17)
+            })
+        })
+    })
+    describe("PATCH - articles/:article_id - Errors", () => {
+        test("PATCH: 400 - responds with 400 Bad Request if endpoint contains invalid id type", () => {
+            const voteIncrease = { inc_vote: 120 }
+            return request(app).patch("/api/articles/not-an-id")
+            .send(voteIncrease)
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toBe("Bad Request")
+            })
+        })
+        test("PATCH: 404 - responds with 404 Not Found if endpoint contains non-existent id", () => {
+            const voteIncrease = { inc_vote: 120 }
+            return request(app).patch("/api/articles/9999")
+            .send(voteIncrease)
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toBe("Not Found")
+            })
+        })
+        test("PATCH: 400 - responds with Bad Request when attempting to patch votes without inc_vote key", () => {
+            const badPatchRequest = { nothing_here: "nada importante" }
+            return request(app).patch("/api/articles/6")
+            .send(badPatchRequest)
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toBe("Bad Request")
+            })
+        })
+    })
+})
