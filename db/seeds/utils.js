@@ -46,3 +46,22 @@ exports.commentCounter = (arr) => {
   })
   return results
 }
+
+exports.checkIfOrderedMostRecent = (arr) => {
+  const regex = /^[0-9]{4}-[0-9]{2}-[0-9]{2}/
+    const dates = arr.map(element => {
+      if (typeof element !== 'string') return element
+        const dateStrHyphens = element.match(regex)[0]
+        const dateStr = `${dateStrHyphens.slice(0, 4)}${dateStrHyphens.slice(5, 7)}${dateStrHyphens.slice(8, 10)}`
+        return Number(dateStr)
+    })
+    let answer = true
+    const datesPreSort = [...dates]
+    const datesSortedDesc = datesPreSort.sort((a, b) => b - a)
+    dates.forEach((date, index) => {
+      if (date !== datesSortedDesc[index]) {
+        answer = false
+      }
+    })
+    return answer
+}
