@@ -2,7 +2,8 @@ const {
   convertTimestampToDate,
   createRef,
   formatComments,
-  commentCounter
+  commentCounter,
+  checkIfOrderedMostRecent
 } = require("../db/seeds/utils");
 
 describe("convertTimestampToDate", () => {
@@ -159,6 +160,36 @@ describe("commentCounter", () => {
       }
     ]
     commentCounter(input)
+    expect(input).toEqual(control)
+  })
+})
+describe("checkIfOrderedMostRecent", () => {
+  test("returns a boolean", () => {
+    const input = [1, 2, 3, 4]
+    expect(typeof checkIfOrderedMostRecent(input)).toBe('boolean')
+  })
+  test("returns true if numbers are sorted in descending order", () => {
+    const input = [1, 2, 3, 4]
+    const input2 = [132, 76, 23, 11, 5]
+    expect(checkIfOrderedMostRecent(input)).toBe(false)
+    expect(checkIfOrderedMostRecent(input2)).toBe(true)
+  })
+  test("converts date strings YYYY-MM-DD to numbers and correctly determines if they're ordered", () => {
+    const input = ["2020-11-26", "1999-07-13", "1970-04-27"]
+    const input2 = ["2020-11-26", "1999-07-13", "2003-04-27"]
+    expect(checkIfOrderedMostRecent(input)).toBe(true)
+    expect(checkIfOrderedMostRecent(input2)).toBe(false)
+  })
+  test("functions when there are added parts after the date in the string", () => {
+    const input = ["2020-11-26vbyriyi", "1999-07-13h7hri", "1970-04-27787f"]
+    const input2 = ["2020-11-26vbhfh", "1999-07-13.lyu", "2003-04-27rtyue?9"]
+    expect(checkIfOrderedMostRecent(input)).toBe(true)
+    expect(checkIfOrderedMostRecent(input2)).toBe(false)
+  })
+  test("is a pure function", () => {
+    const input = ["2020-11-26vbyriyi", "1999-07-13h7hri", "1970-04-27787f"]
+    const control = ["2020-11-26vbyriyi", "1999-07-13h7hri", "1970-04-27787f"]
+    checkIfOrderedMostRecent(input)
     expect(input).toEqual(control)
   })
 })

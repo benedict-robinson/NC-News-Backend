@@ -8,6 +8,7 @@ const {
     convertTimestampToDate,
     createRef,
     formatComments,
+    checkIfOrderedMostRecent
   } = require('../db/seeds/utils.js');
 
 beforeEach(() => seed(data));
@@ -36,7 +37,7 @@ describe("/api", () => {
 })
 
 describe("Topics", () => {
-    describe("GET", () => {
+    describe("/api/topics", () => {
         test("GET: 200 - should respond with an array of all topics", () => {
             return request(app).get("/api/topics")
             .expect(200)
@@ -107,18 +108,11 @@ describe("Articles", () => {
             return request(app).get("/api/articles")
             .expect(200)
             .then(({body}) => {
-                const articles = body.articles
-                const regex = /^[0-9]{4}-[0-9]{2}-[0-9]{2}/
-                const dates = articles.map(article => {
-                    const objDate = article.created_at
-                    const dateStrHyphens = objDate.match(regex)[0]
-                    const dateStr = `${dateStrHyphens.slice(0, 4)}${dateStrHyphens.slice(5, 7)}${dateStrHyphens.slice(8, 10)}`
-                    return Number(dateStr)
+                const articlesDate = body.articles.map(article => {
+                    return article.created_at
                 })
-                const datesPreSort = [...dates]
-                const datesSortedDesc = datesPreSort.sort((a, b) => b - a)
-                
-                expect(dates).toEqual(datesSortedDesc)
+                const testOfOrder = checkIfOrderedMostRecent(articlesDate)
+                expect(testOfOrder).toBe(true)
             })
         })
     })
@@ -156,4 +150,71 @@ describe("Articles", () => {
             })
         })
     })
+    describe("/api/articles/:article_id/comments", () => {
+        test("GET: 200 - returns an array of all comments for specified article", () => {
+            return request(app).get("/api/articles/1/comments")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.comments).toHaveLength(11)
+            })
+        })
+        test("GET: 200 - returns an array of comment objects with correct keys with correct data types", () => {
+            return request(app).get("/api/articles/1/comments")
+            .expect(200)
+            .then(({body}) => {
+                const comments = body.comments
+                const keys = ["comment_id", "votes", "created_at", "author", "body", "article_id"]
+                comments.forEach(comment => {
+                    expect(Object.keys(comment)).toEqual(keys)
+                    expect(typeof comment.comment_id).toBe("number")
+                    expect(typeof comment.author).toBe("string")
+                    expect(typeof comment.body).toBe("string")
+                    expect(typeof comment.article_id).toBe("number")
+                    expect(typeof comment.votes).toBe("number")
+                })
+            })
+        })
+        test("GET: 200 - comments array are ordered by most recent", () => {
+            return request(app).get("/api/articles/1/comments")
+            .expect(200)
+            .then(({body}) => {
+                const commentsDates = body.comments.map(comment => {
+                    return comment.created_at
+                })
+                expect(checkIfOrderedMostRecent(commentsDates)).toBe(true)
+            })
+        })
+    })
+    describe("/api/articles/:article_id/comments - ERRORS", () => {
+        test("GET: 400 - returns Bad Request Error when id is not a valid id type", () => {
+            return request(app).get("/api/articles/not-an-id/comments")
+            .expect(400)
+            .then(({body}) => {
+                console.log(body.msg)
+               expect(body.msg).toBe('Bad Request') 
+            })
+        })
+        test("GET: 404 - returns Not Found when id doesn't exist", () => {
+            return request(app).get("/api/articles/9999/comments")
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toBe("Article Not Found")
+            })
+        })
+        test("GET: 200 - returns empty array with message, ,no comments yet' when passed valid id but no comments attached", () => {
+            return request(app).get("/api/articles/2/comments")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.comments).toHaveLength(0)
+                expect(body.msg).toBe("No Comments Yet")
+            })
+        })
+    })
 })
+
+/*
+ errors
+ - invalid id type: ie string
+ - article id doesnt exist
+ - article id exists but no comments
+ */

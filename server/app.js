@@ -3,7 +3,7 @@ const app = express()
 
 const { getApi } = require("./controllers/api-controller.js")
 const { getTopics } = require("./controllers/topics-controller.js")
-const { getArticles, getArticleById } = require("./controllers/articles-controller.js")
+const { getArticles, getArticleById, getCommentsByArticle } = require("./controllers/articles-controller.js")
 
 app.get("/api", getApi)
 
@@ -13,12 +13,14 @@ app.get("/api/articles", getArticles)
 
 app.get("/api/articles/:article_id", getArticleById)
 
+app.get("/api/articles/:article_id/comments", getCommentsByArticle)
+
 app.all("/*", (req, res) => {
     res.status(404).send({msg: "Route Not Found"})
 })
 
 app.use((err, req, res, next) => {
-  if (err.code === "42703") {
+  if (err.code === "42703" || err.code === '22P02') {
     res.status(400).send({msg: "Bad Request"})
   }
   else {

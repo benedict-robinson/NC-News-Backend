@@ -7,7 +7,8 @@
     "queries": [],
     "exampleResponse": {
       "topics": [{ "slug": "football", "description": "Footie!" }]
-    }
+    },
+    "defaultSortedBy": "slug - ASC"
   },
   "GET /api/articles": {
     "description": "serves an array of all articles",
@@ -26,7 +27,7 @@
         }
       ]
     },
-    "sortedBy": "most recent"
+    "defaultSortedBy": "most recent"
   },
   "GET /api/articles/:article_id": {
     "description": "serves an individual article selected by unique ID",
@@ -43,5 +44,21 @@
           "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700" 
         }
     }
+  },
+  "GET /api/articles/:article_id/comments": {
+    "description": "serves an array of comments on article selected by unique ID",
+    "exampleResponse": {
+      "comments": [
+        {
+          "comment_id": 1,
+          "votes": 16,
+          "created_at": "2018-05-30T15:59:13.341Z",
+          "author": "butter_bridge",
+          "body": "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          "article_id": 9
+        }
+      ]
+    },
+    "defaultSortedBy":"most recent"
   }
 }
