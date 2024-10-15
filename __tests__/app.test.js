@@ -56,6 +56,24 @@ describe("Topics", () => {
                 })
             })
         })
+        test("GET: 200 - topics are sorted by slug ASC", () => {
+            return request(app).get("/api/topics")
+            .expect(200)
+            .then(({body}) => {
+                const topics = body.topics
+                const topicsFirstLetter = topics.map(topic => {
+                    return topic.slug[0]
+                })
+                const alphabet = "abcdefghijklmnopqrstuvwxyz"
+                const lettersIndex = topicsFirstLetter.map(letter => {
+                    return alphabet.search(letter)
+                })
+                const lettersPreSort = [...lettersIndex]
+                expect(lettersIndex).toEqual(lettersPreSort.sort((a, b) => a - b))
+                expect(lettersIndex.reverse()).toEqual(lettersPreSort.sort((a, b) => b - a))
+                
+            })
+        })
     })
 })
 
