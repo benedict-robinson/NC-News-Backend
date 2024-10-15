@@ -60,7 +60,51 @@ describe("Topics", () => {
 })
 
 describe("Articles", () => {
-    describe.only("Articles By Id", () => {
+    describe("/api/articles", () => {
+        test("GET: 200 - responds with an array of all articles", () => {
+            return request(app).get("/api/articles")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.articles.length).toBe(13)
+            })
+        })
+        test("GET: 200 - responds with an array of object with correct property keys", () => {
+            return request(app).get("/api/articles")
+            .expect(200)
+            .then(({body}) => {
+                const articles = body.articles
+                const keys = ["article_id", "title", "author", "topic", "created_at", "votes", "article_img_url", "comment_count"]
+                articles.forEach(article => {
+                    expect(Object.keys(article)).toEqual(keys)
+                    expect(typeof article.article_id).toBe("number")
+                    expect(typeof article.author).toBe("string")
+                    expect(typeof article.title).toBe("string")
+                    expect(typeof article.topic).toBe("string")
+                    expect(typeof article.votes).toBe("number")
+                    expect(typeof article.comment_count).toBe("number")
+                })
+            })
+        })
+        test("GET: 200 - responds with articles in descending date order", () => {
+            return request(app).get("/api/articles")
+            .expect(200)
+            .then(({body}) => {
+                const articles = body.articles
+                const regex = /^[0-9]{4}-[0-9]{2}-[0-9]{2}/
+                const dates = articles.map(article => {
+                    const objDate = article.created_at
+                    const dateStrHyphens = objDate.match(regex)[0]
+                    const dateStr = `${dateStrHyphens.slice(0, 4)}${dateStrHyphens.slice(5, 7)}${dateStrHyphens.slice(8, 10)}`
+                    return Number(dateStr)
+                })
+                const datesPreSort = [...dates]
+                const datesSortedDesc = datesPreSort.sort((a, b) => b - a)
+                
+                expect(dates).toEqual(datesSortedDesc)
+            })
+        })
+    })
+    describe("/api/articles/:article_id", () => {
         test("GET: 200 - articles by valid Id returns the article with that ID", () => {
             return request(app).get("/api/articles/6")
             .expect(200)

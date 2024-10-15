@@ -20,3 +20,29 @@ exports.formatComments = (comments, idLookup) => {
     };
   });
 };
+
+exports.commentCounter = (arr) => {
+  newArr = arr.map(element => {
+    return {...element}
+  })
+  const results = []
+  const articleIds = []
+  newArr.forEach(article => {
+    if (!articleIds.includes(article.article_id)) {
+      articleIds.push(article.article_id)
+      article.comment_count = 0
+      results.push({...article})
+    }
+    if (article.comment_id !== null) {
+      results.forEach(element => {
+        if (element.article_id === article.article_id) {
+          element.comment_count++
+        }
+      })
+    }
+  })
+  results.forEach(element => {
+    delete element.comment_id
+  })
+  return results
+}
