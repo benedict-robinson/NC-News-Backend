@@ -257,6 +257,27 @@ describe("Articles", () => {
                 expect(body.msg).toEqual("Article Not Found")
             })
         })
+        describe("GET articles by id - queries", () => {
+            test("Comment Count - responds get: 200 and lists the total number of comments on the selected article", () => {
+                return request(app).get("/api/articles/6?comment_count")
+                .expect(200)
+                .then(({body}) => {
+                    const articleSix = {
+                        article_id: 6,
+                        title: "A",
+                        topic: "mitch",
+                        author: "icellusedkars",
+                        body: "Delicious tin of cat food",
+                        created_at: "2020-10-18 02:00:00",
+                        votes: 0,
+                        article_img_url:
+                          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+                        comment_count: 1
+                      }
+                    expect(body.article).toEqual(articleSix)
+                })
+            })
+        })
     })
     describe("/api/articles/:article_id/comments", () => {
         test("GET: 200 - returns an array of all comments for specified article", () => {

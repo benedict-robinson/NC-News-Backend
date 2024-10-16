@@ -33,8 +33,10 @@ exports.getArticles = (req, res, next) => {
 }
 
 exports.getArticleById = (req, res, next) => {
-    const { article_id} = req.params
-    selectArticleById(article_id).then((response) => {
+    const { article_id } = req.params
+    const commentCount = Object.keys(req.query)[0]
+    selectArticleById(article_id, commentCount).then((response) => {
+    
         res.status(200).send({article: response[0]})
     })
     .catch((err) => {
