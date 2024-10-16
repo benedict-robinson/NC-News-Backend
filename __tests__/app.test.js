@@ -600,5 +600,33 @@ describe("Users", () => {
                 expect(body.users).toBeSorted({key: 'username',descending: false})
             })
         })
+        describe("Get Users - Queries", () => {
+            test("GET: 200 - responds with a single user with a username that matches the query", () => {
+                return request(app).get("/api/users?username=lurker")
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.user).toEqual({
+                        username: 'lurker',
+                        name: 'do_nothing',
+                        avatar_url:
+                          'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png'
+                      })
+                })
+            })
+            test("GET: 400 - responds with a Bad Request if username given is an invalid type, ie: a number", () => {
+                return request(app).get("/api/users?username=17")
+                .expect(400)
+                .then(({body}) => {
+                    expect(body.msg).toBe("Bad Request")
+                })
+            })
+            test("GET: 404 - responds with a User Not Found if username given is valid but doesn't exist", () => {
+                return request(app).get("/api/users?username=brigadier_benno")
+                .expect(404)
+                .then(({body}) => {
+                    expect(body.msg).toBe("User Not Found")
+                })
+            })
+        })
     })
 })
