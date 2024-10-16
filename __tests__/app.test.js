@@ -431,3 +431,35 @@ describe("Votes", () => {
         })
     })
 })
+describe("Users", () => {
+    describe("GET Users", () => {
+        test("GET: 200 - responds with an array of all users", () => {
+            return request(app).get("/api/users")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.users).toHaveLength(4)
+            })
+        })
+        test("GET: 200 - the array of users has the required property keys with correct value types", () => {
+            return request(app).get("/api/users")
+            .expect(200)
+            .then(({body}) => {
+                const users = body.users
+                const keys = ["username", "name", "avatar_url"]
+                users.forEach(user => {
+                    expect(Object.keys(user)).toEqual(keys)
+                    expect(typeof user.username).toBe("string")
+                    expect(typeof user.name).toBe("string")
+                    expect(typeof user.avatar_url).toBe("string")
+                })
+            })
+        })
+        test("GET: 200 - the user array is ordered by username ascending", () => {
+            return request(app).get("/api/users")
+            .expect(200)
+            .then(({body}) => {
+                expect(body.users).toBeSorted({key: 'username',ascending: true})
+            })
+        })
+    })
+})
