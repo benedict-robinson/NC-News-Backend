@@ -187,6 +187,41 @@ describe("Articles", () => {
                     expect(body.msg).toBe("Unaccepted Request")
                 })
             })
+            test("Topic - responds with articles filtered by topic when valid topic query given", () => {
+                return request(app).get("/api/articles?topic=mitch")
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.articles).toHaveLength(12)
+                })
+            })
+            test("Topic - responds with all articles when valid topic given with no value", () => {
+                return request(app).get("/api/articles?topic")
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.articles).toHaveLength(13)
+                })
+            })
+            test("Topic - responds with 200 but no content when given a valid & existing topic query but with not matching articles", () => {
+                return request(app).get("/api/articles?topic=paper")
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.articles).toHaveLength(0)
+                })
+            })
+            test("GET: 400 - responds with 400 Bad Request when given an invalid topic query", () => {
+                return request(app).get("/api/articles?topic=4")
+                .expect(400)
+                .then(({body}) => {
+                    expect(body.msg).toBe("Bad Request")
+                })
+            })
+            test("GET: 404 - responds with 404 Not Found when given a valid but non-existent topic query", () => {
+                return request(app).get("/api/articles?topic=dutch_cheese")
+                .expect(404)
+                .then(({body}) => {
+                    expect(body.msg).toBe("Not Found")
+                })
+            })
         })
     })
     describe("/api/articles/:article_id", () => {
