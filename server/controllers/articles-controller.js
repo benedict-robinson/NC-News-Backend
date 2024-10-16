@@ -5,7 +5,21 @@ const { selectCommentsByArticle } = require("../models/get-comments-by-article-m
 const { updateVotes } = require("../models/patch-votes-by-article-id-model.js")
 
 exports.getArticles = (req, res, next) => {
-    selectArticles().then((response) => {
+    let error = false
+    const { sort_by, order} = req.query
+    let defaultOrder = true
+    if (!sort_by || sort_by === 'votes' || sort_by === 'created_at') {
+        if (!order) {
+            defaultOrder = false
+        }
+    }
+    const queries = Object.keys(req.query)
+    queries.forEach(query => {
+        if (query !== 'sort_by' && query !== 'order') {
+           error = true
+        }
+    })
+    selectArticles(sort_by, order, error, defaultOrder).then((response) => {
         res.status(200).send({articles: response})
     })
     .catch((err) => {
