@@ -1,5 +1,6 @@
 const { req, res } = require("express")
 const { insertComment } = require("../models/post-comment-model.js")
+const { deleteCommentById } = require("../models/delete-comment-model.js")
 
 exports.postComment = (req, res, next) => {
     const { body, author } = req.body
@@ -11,6 +12,15 @@ exports.postComment = (req, res, next) => {
     })
     .catch((err) => {
         next(err)
+    })   
+}
+
+exports.deleteComment = (req, res, next) => {
+    const { comment_id } = req.params
+    deleteCommentById(comment_id).then(({status, msg}) => {
+        res.status(status).send()
     })
-    
+    .catch((err) => {
+        next(err)
+    })
 }
