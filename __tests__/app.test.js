@@ -111,6 +111,83 @@ describe("Articles", () => {
                 expect(body.articles).toBeSorted({key: "created_at", descending: true})
             })
         })
+        describe("GET articles - queries", () => {
+            test("Sort By - articles can be sorted by topic", () => {
+                return request(app).get("/api/articles?sort_by=topic")
+                .expect(200)
+                .then(({body}) => {
+                    const articles = body.articles
+                    expect(articles.length).toBe(13)
+                    expect(articles).toBeSorted({key: "topic", ascending: true})
+                })
+            })
+            test("Sort By - articles can be sorted by topic", () => {
+                return request(app).get("/api/articles?sort_by=author")
+                .expect(200)
+                .then(({body}) => {
+                    const articles = body.articles
+                    expect(articles.length).toBe(13)
+                    expect(articles).toBeSorted({key: "author", ascending: true})
+                })
+            })
+            test("Sort By - articles can be sorted by topic", () => {
+                return request(app).get("/api/articles?sort_by=title")
+                .expect(200)
+                .then(({body}) => {
+                    const articles = body.articles
+                    expect(articles.length).toBe(13)
+                    expect(articles).toBeSorted({key: "title", ascending: true})
+                })
+            })
+            test("Order - articles can be ordered by DESC if specified (ASC is default) when queries chained", () => {
+                return request(app).get("/api/articles?sort_by=title&order=desc")
+                .expect(200)
+                .then(({body}) => {
+                    const articles = body.articles
+                    expect(articles.length).toBe(13)
+                    expect(articles).toBeSorted({key: "title", descending: true})
+                })
+            })
+            test("Order - articles can be ordered by ASC when applied to created_at as default is DESC", () => {
+                return request(app).get("/api/articles?order=asc")
+                .expect(200)
+                .then(({body}) => {
+                    const articles = body.articles
+                    expect(articles.length).toBe(13)
+                    expect(articles).toBeSorted({key: "created_at", ascending: true})
+                })
+            })
+            test("Order - default order for votes is DESC", () => {
+                return request(app).get("/api/articles?sort_by=votes")
+                .expect(200)
+                .then(({body}) => {
+                    const articles = body.articles
+                    expect(articles.length).toBe(13)
+                    expect(articles).toBeSorted({key: "votes", descending: true})
+                })
+            })
+            test("GET: 400 - responds with 400 Bad Request when a query is given that is invalid", () => {
+                return request(app).get("/api/articles?not-a-query=title")
+                .expect(400)
+                .then(({body}) => {
+                    expect(body.msg).toBe("Bad Request")
+                })
+            })
+            test("GET: 406 - responds with 406 Not Acceptable when a query is given that is not accepted (order)", () => {
+                return request(app).get("/api/articles?order=not-a-query")
+                .expect(406)
+                .then(({body}) => {
+                    expect(body.msg).toBe("Unaccepted Request")
+                })
+            })
+            test("GET: 406 - responds with 406 Not Acceptable when a query is given that is not accepted (sort_by)", () => {
+                return request(app).get("/api/articles?sort_by=not-a-query")
+                .expect(406)
+                .then(({body}) => {
+                    expect(body.msg).toBe("Unaccepted Request")
+                })
+            })
+        })
     })
     describe("/api/articles/:article_id", () => {
         test("GET: 200 - articles by valid Id returns the article with that ID", () => {
