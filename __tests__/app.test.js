@@ -311,6 +311,39 @@ describe("Comments - POST/PATCH/DELETE", () => {
             })
         })
     })
+    describe("DELETE: 204 - responds with 204 message and no content when successfully deleted", () => {
+        test("DELETE: 204 - responds with 204 message and no content when successfully deleted", () => {
+            return request(app).delete("/api/comments/5")
+            .expect(204)
+        })
+        test("DELETE: 204 - removes selected comment from comment table", () => {
+            const id = 5
+            return request(app).delete(`/api/comments/${id}`)
+            .expect(204)
+            .then(() => {
+                return db.query(`SELECT comment_id FROM comments;`)
+                .then(({rows}) => {
+                    const commentIds = rows.map(comment => comment.comment_id)
+                    expect(commentIds.includes(id)).toBe(false)
+                })
+            })
+        })
+        test("DELETE: 400 - responds with 400 Bad Request when given an invalid id", () => {
+            return request(app).delete("/api/comments/not-an-id")
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toBe("Bad Request")
+            })
+        })
+        test("DELETE: 404 - responds with 404 Not Found when given an non-existent id", () => {
+            return request(app).delete("/api/comments/9999")
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toBe("Not Found")
+            })
+        })
+    })
+
 })
 describe("Votes", () => {
     describe("PATCH - articles/:article_id", () => {
