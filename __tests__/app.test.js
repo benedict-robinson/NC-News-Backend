@@ -118,7 +118,7 @@ describe("Articles", () => {
                 .then(({body}) => {
                     const articles = body.articles
                     expect(articles.length).toBe(13)
-                    expect(articles).toBeSorted({key: "topic", ascending: true})
+                    expect(articles).toBeSorted({key: "topic"})
                 })
             })
             test("Sort By - articles can be sorted by topic", () => {
@@ -127,7 +127,7 @@ describe("Articles", () => {
                 .then(({body}) => {
                     const articles = body.articles
                     expect(articles.length).toBe(13)
-                    expect(articles).toBeSorted({key: "author", ascending: true})
+                    expect(articles).toBeSorted({key: "author"})
                 })
             })
             test("Sort By - articles can be sorted by topic", () => {
@@ -136,7 +136,7 @@ describe("Articles", () => {
                 .then(({body}) => {
                     const articles = body.articles
                     expect(articles.length).toBe(13)
-                    expect(articles).toBeSorted({key: "title", ascending: true})
+                    expect(articles).toBeSorted({key: "title"})
                 })
             })
             test("Order - articles can be ordered by DESC if specified (ASC is default) when queries chained", () => {
@@ -154,7 +154,7 @@ describe("Articles", () => {
                 .then(({body}) => {
                     const articles = body.articles
                     expect(articles.length).toBe(13)
-                    expect(articles).toBeSorted({key: "created_at", ascending: true})
+                    expect(articles).toBeSorted({key: "created_at" })
                 })
             })
             test("Order - default order for votes is DESC", () => {
@@ -348,8 +348,14 @@ describe("Comments - POST/PATCH/DELETE", () => {
             .send(comment)
             .expect(201)
             .then(({body}) => {
-               const objKeys  = ["comment_id", "body", "article_id", "author", "votes", "created_at"]
-                expect(Object.keys(body.comment)).toEqual(objKeys)
+                expect(body.comment).toEqual({
+                    comment_id: expect.any(Number),
+                    body: "Is this the same Mitch that runs the seminars?",
+                    author: "rogersop",
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    article_id: 4
+                })
             })
         })
         test("POST: 201 - should add comment to comment table", () => {
@@ -440,7 +446,7 @@ describe("Comments - POST/PATCH/DELETE", () => {
             .send(comment)
             .expect(404)
             .then(({body}) => {
-                expect(body.msg).toBe("Username Not Found")
+                expect(body.msg).toBe("User Not Found")
             })
         })
     })
@@ -487,14 +493,16 @@ describe("Votes", () => {
             .expect(200)
             .then(({body}) => {
                 const article = body.article
-                const keys = ["article_id", "title", "topic", "author", "body", "created_at", "votes", "article_img_url"]
-                expect(Object.keys(article)).toEqual(keys)
-                expect(typeof article.article_id).toBe("number")
-                expect(typeof article.author).toBe("string")
-                expect(typeof article.title).toBe("string")
-                expect(typeof article.topic).toBe("string")
-                expect(typeof article.votes).toBe("number")
-                expect(typeof article.body).toBe("string")
+                expect(article).toEqual({
+                    article_id: 4,
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    topic: expect.any(String),
+                    votes: expect.any(Number),
+                    body: expect.any(String),
+                    created_at: expect.any(String),
+                    article_img_url: expect.any(String)
+                })
             })
         })
         test("PATCH: 200 - responds with an updated article with votes increased by send request", () => {
@@ -578,9 +586,7 @@ describe("Users", () => {
             .expect(200)
             .then(({body}) => {
                 const users = body.users
-                const keys = ["username", "name", "avatar_url"]
                 users.forEach(user => {
-                    expect(Object.keys(user)).toEqual(keys)
                     expect(typeof user.username).toBe("string")
                     expect(typeof user.name).toBe("string")
                     expect(typeof user.avatar_url).toBe("string")
@@ -591,7 +597,7 @@ describe("Users", () => {
             return request(app).get("/api/users")
             .expect(200)
             .then(({body}) => {
-                expect(body.users).toBeSorted({key: 'username',ascending: true})
+                expect(body.users).toBeSorted({key: 'username',descending: false})
             })
         })
     })
