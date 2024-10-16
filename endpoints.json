@@ -31,6 +31,7 @@
   },
   "GET /api/articles/:article_id": {
     "description": "serves an individual article selected by unique ID",
+    "queries": ["comment_count"],
     "exampleResponse": {
       "article":
         {
