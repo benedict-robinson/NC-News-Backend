@@ -94,6 +94,7 @@
   },
   "GET /api/users": {
     "description": "responds with an an array of users",
+    "queries": ["username"],
     "exampleResponse": [
       {
         "username": "butter_bridge",
@@ -108,5 +109,9 @@
       }
     ],
     "defaultSortedBy": "username"
+  },
+  "DELETE /api/articles/:article_id": {
+    "description": "deletes article with selected unique ID from articles table",
+    "exampleResponse": { "status": 204 }
   }
 }

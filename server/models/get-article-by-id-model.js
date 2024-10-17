@@ -36,3 +36,4 @@ exports.selectArticleById = (id, commentCount) => {
         return rows
     })
 }
+

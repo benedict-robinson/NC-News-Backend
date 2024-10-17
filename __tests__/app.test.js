@@ -336,6 +336,38 @@ describe("Articles", () => {
                 })
             })
         })
+        describe("DELETE articles by id", () => {
+            test("DELETE: 204 - responds with 204 message and no content when successfully deleted", () => {
+                return request(app).delete("/api/articles/5")
+                .expect(204)
+            })
+            test("DELETE: 204 - removes selected article from article table", () => {
+                const id = 5
+                return request(app).delete(`/api/articles/${id}`)
+                .expect(204)
+                .then(() => {
+                    return db.query(`SELECT article_id FROM articles;`)
+                    .then(({rows}) => {
+                        const articleIds = rows.map(article => article.article_id)
+                        expect(articleIds.includes(id)).toBe(false)
+                    })
+                })
+            })
+            test("DELETE: 400 - responds with 400 Bad Request when given an invalid id", () => {
+                return request(app).delete("/api/articles/not-an-id")
+                .expect(400)
+                .then(({body}) => {
+                    expect(body.msg).toBe("Bad Request")
+                })
+            })
+            test("DELETE: 404 - responds with 404 Not Found when given an non-existent id", () => {
+                return request(app).delete("/api/articles/9999")
+                .expect(404)
+                .then(({body}) => {
+                    expect(body.msg).toBe("Not Found")
+                })
+            })
+        })
     })
     describe("/api/articles/:article_id/comments", () => {
         test("GET: 200 - returns an array of all comments for specified article", () => {
