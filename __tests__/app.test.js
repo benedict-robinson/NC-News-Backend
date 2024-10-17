@@ -37,7 +37,7 @@ describe("/api", () => {
 })
 
 describe("Topics", () => {
-    describe("/api/topics", () => {
+    describe("GET /api/topics", () => {
         test("GET: 200 - should respond with an array of all topics", () => {
             return request(app).get("/api/topics")
             .expect(200)
@@ -73,6 +73,65 @@ describe("Topics", () => {
                 expect(lettersIndex).toEqual(lettersPreSort.sort((a, b) => a - b))
                 expect(lettersIndex.reverse()).toEqual(lettersPreSort.sort((a, b) => b - a))
                 
+            })
+        })
+    })
+    describe("POST /api/topics", () => {
+        test("POST: 201 - responds with object of new topic", () => {
+            const newTopic = { "slug": 'Dutch Cheese', 
+                "description": "What's gouda-nuff for them, is gouda-nuff for us" }
+            return request(app).post("/api/topics")
+            .send(newTopic)
+            .expect(201)
+            .then(({body}) => {
+                expect(body.topic).toEqual(newTopic)
+            })
+        })
+        test("POST: 201 - adds the topic to the topic table", () => {
+            const newTopic = { "slug": "Dutch Cheese", 
+                "description": "What's gouda-nuff for them, is gouda-nuff for us" }
+            return request(app).post("/api/topics")
+            .send(newTopic)
+            .expect(201)
+            .then(() => {
+                return db.query(`SELECT * FROM topics WHERE slug = 'Dutch Cheese';`)
+                .then(({rows}) => {
+                    expect(rows[0]).toEqual(newTopic)
+                })
+            })
+        })
+        test("POST: 201 - should ignore unnecessary send properties", () => {
+            const newTopic = { "slug": "Dutch Cheese", 
+                "description": "What's gouda-nuff for them, is gouda-nuff for us",
+                "useless-key": "useless info" }
+            const expectedTopic = { "slug": "Dutch Cheese", 
+                "description": "What's gouda-nuff for them, is gouda-nuff for us" }
+            return request(app).post(`/api/topics`)
+            .send(newTopic)
+            .expect(201)
+            .then(({body}) => {
+                expect(body.topic).toEqual(expectedTopic)
+            })
+        })
+        test("POST: 201 - successfully makes post without description key as not required", () => {
+            const newTopic = { slug: "Dutch Cheese"}
+            return request(app).post("/api/topics")
+            .send(newTopic)
+            .expect(201)
+            .then(({body}) => {
+                expect(body.topic).toEqual({
+                    slug: "Dutch Cheese",
+                    description: null
+                })
+            })
+        })
+        test("POST: 400 - responds with 400 Bad Request when topic posted without required slug property", () => {
+            const newTopic = { "description": "What's gouda-nuff for them, is gouda-nuff for us" }
+            return request(app).post("/api/topics")
+            .send(newTopic)
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toBe("Bad Request")
             })
         })
     })
@@ -173,18 +232,18 @@ describe("Articles", () => {
                     expect(body.msg).toBe("Bad Request")
                 })
             })
-            test("GET: 406 - responds with 406 Not Acceptable when a query is given that is not accepted (order)", () => {
+            test("GET: 400 - responds with 400 Bad Request when a query is given that is not accepted (order)", () => {
                 return request(app).get("/api/articles?order=not-a-query")
-                .expect(406)
+                .expect(400)
                 .then(({body}) => {
-                    expect(body.msg).toBe("Unaccepted Request")
+                    expect(body.msg).toBe("Bad Request")
                 })
             })
-            test("GET: 406 - responds with 406 Not Acceptable when a query is given that is not accepted (sort_by)", () => {
+            test("GET: 400 - responds with 400 Bad Request when a query is given that is not accepted (sort_by)", () => {
                 return request(app).get("/api/articles?sort_by=not-a-query")
-                .expect(406)
+                .expect(400)
                 .then(({body}) => {
-                    expect(body.msg).toBe("Unaccepted Request")
+                    expect(body.msg).toBe("Bad Request")
                 })
             })
             test("Topic - responds with articles filtered by topic when valid topic query given", () => {
@@ -192,6 +251,9 @@ describe("Articles", () => {
                 .expect(200)
                 .then(({body}) => {
                     expect(body.articles).toHaveLength(12)
+                    body.articles.forEach(article => {
+                        expect(article.topic).toBe("mitch")
+                    })
                 })
             })
             test("Topic - responds with all articles when valid topic given with no value", () => {
@@ -227,6 +289,9 @@ describe("Articles", () => {
                 .expect(200)
                 .then(({body}) => {
                     expect(body.articles).toHaveLength(4)
+                    body.articles.forEach(article => {
+                        expect(article.author).toBe("butter_bridge")
+                    })
                 })
             })
             test("Author - responds with all articles when author query given with no value", () => {
@@ -574,6 +639,7 @@ describe("Comments - POST/PATCH/DELETE", () => {
     })
 
 })
+
 describe("Votes", () => {
     describe("PATCH - articles/:article_id", () => {
         test("PATCH: 200 - responds with updated article", () => {
@@ -662,6 +728,7 @@ describe("Votes", () => {
         })
     })
 })
+
 describe("Users", () => {
     describe("GET Users", () => {
         test("GET: 200 - responds with an array of all users", () => {

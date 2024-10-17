@@ -2,7 +2,7 @@ const express = require("express")
 const app = express()
 
 const { getApi } = require("./controllers/api-controller.js")
-const { getTopics } = require("./controllers/topics-controller.js")
+const { getTopics, postTopic } = require("./controllers/topics-controller.js")
 const { getArticles, getArticleById, getCommentsByArticle, patchVotesOnArticle, deleteArticle } = require("./controllers/articles-controller.js")
 const { postComment, deleteComment } = require("./controllers/comments-controller.js")
 const { getUsers } = require("./controllers/users-controller.js")
@@ -12,6 +12,8 @@ app.use(express.json())
 app.get("/api", getApi)
 
 app.get("/api/topics", getTopics)
+
+app.post("/api/topics", postTopic)
 
 app.get("/api/articles", getArticles)
 
