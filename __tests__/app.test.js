@@ -121,7 +121,7 @@ describe("Articles", () => {
                     expect(articles).toBeSorted({key: "topic"})
                 })
             })
-            test("Sort By - articles can be sorted by topic", () => {
+            test("Sort By - articles can be sorted by author", () => {
                 return request(app).get("/api/articles?sort_by=author")
                 .expect(200)
                 .then(({body}) => {
@@ -130,7 +130,7 @@ describe("Articles", () => {
                     expect(articles).toBeSorted({key: "author"})
                 })
             })
-            test("Sort By - articles can be sorted by topic", () => {
+            test("Sort By - articles can be sorted by title", () => {
                 return request(app).get("/api/articles?sort_by=title")
                 .expect(200)
                 .then(({body}) => {
@@ -220,6 +220,64 @@ describe("Articles", () => {
                 .expect(404)
                 .then(({body}) => {
                     expect(body.msg).toBe("Not Found")
+                })
+            })
+            test("Author - responds with articles filtered by author when valid author query given", () => {
+                return request(app).get("/api/articles?author=butter_bridge")
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.articles).toHaveLength(4)
+                })
+            })
+            test("Author - responds with all articles when author query given with no value", () => {
+                return request(app).get("/api/articles?author")
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.articles).toHaveLength(13)
+                })
+            })
+            test("Author - responds with 200 but no content when given a valid & existing topic query but with not matching articles", () => {
+                return request(app).get("/api/articles?author=lurker")
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.articles).toHaveLength(0)
+                })
+            })
+            test("GET: 400 - responds with 400 Bad Request when given an invalid author query value", () => {
+                return request(app).get("/api/articles?author=4")
+                .expect(400)
+                .then(({body}) => {
+                    expect(body.msg).toBe("Bad Request")
+                })
+            })
+            test("GET: 404 - responds with 404 Not Found when given a valid but non-existent topic query", () => {
+                return request(app).get("/api/articles?author=dutch_cheese")
+                .expect(404)
+                .then(({body}) => {
+                    expect(body.msg).toBe("Not Found")
+                })
+            })
+            test("GET: 200 - topic & author queries can be chained", () => {
+                return request(app).get("/api/articles?author=rogersop&topic=mitch")
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.articles).toHaveLength(2)
+                    body.articles.forEach(article => {
+                        expect(article.topic).toBe("mitch")
+                        expect(article.author).toBe("rogersop")
+                    })
+                })
+            })
+            test("GET: 200 - all queries can be chained", () => {
+                return request(app).get("/api/articles?author=rogersop&topic=mitch&sort_by=title&order=desc")
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.articles).toHaveLength(2)
+                    body.articles.forEach(article => {
+                        expect(article.topic).toBe("mitch")
+                        expect(article.author).toBe("rogersop")
+                    })
+                    expect(body.articles).toBeSorted({key: "title", descending: true})
                 })
             })
         })

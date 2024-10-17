@@ -7,23 +7,24 @@ const { updateVotes } = require("../models/patch-votes-by-article-id-model.js")
 
 exports.getArticles = (req, res, next) => {
     let error = false
-    const { sort_by, order, topic} = req.query
+    const { sort_by, order, topic, author} = req.query
     let defaultOrder = true
     if (!sort_by || sort_by === 'votes' || sort_by === 'created_at') {
         if (!order) {
             defaultOrder = false
         }
     }
+    const validQueries = ['sort_by', 'order', 'topic', 'author']
     const queries = Object.keys(req.query)
     queries.forEach(query => {
-        if (query !== 'sort_by' && query !== 'order' && query !== 'topic') {
+        if (!validQueries.includes(query)) {
            error = true
         }
-        if (Number(topic)) {
+        if (Number(topic) || Number(author)) {
             error = true
         }
     })
-    selectArticles(sort_by, order, error, defaultOrder, topic).then((response) => {
+    selectArticles(sort_by, order, error, defaultOrder, topic, author).then((response) => {
         res.status(200).send({articles: response})
     })
     .catch((err) => {
