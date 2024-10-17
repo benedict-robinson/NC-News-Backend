@@ -16,10 +16,7 @@ exports.selectArticles = (sort_by = "created_at", order = "asc", error, defaultO
         const topics = rows.map(topic => topic.slug)
         const validSortBys = ["created_at", "author", "title", "topic", "votes"]
         const validOrders = ["asc", "desc"]
-        if (!validSortBys.includes(sort_by) || !validOrders.includes(order)) {
-            return Promise.reject({status: 406, msg: "Unaccepted Request"})
-        }
-        if (error) {
+        if (!validSortBys.includes(sort_by) || !validOrders.includes(order) || error) {
             return Promise.reject({status: 400, msg: "Bad Request"})
         }
         if (!topics.includes(topic) && topic) {
