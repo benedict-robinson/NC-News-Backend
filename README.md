@@ -24,9 +24,12 @@ Necessary Environment Variables - see "dotenv" examples below
 
 Clone the repo with the link
 
+```
 bash
 Copy code
 git clone https://github.com/username/repository-name.git
+```
+
 
 Install dependencies
 
