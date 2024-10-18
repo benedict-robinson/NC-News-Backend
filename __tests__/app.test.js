@@ -138,7 +138,7 @@ describe("Topics", () => {
 })
 
 describe("Articles", () => {
-    describe("/api/articles", () => {
+    describe("GET /api/articles", () => {
         test("GET: 200 - responds with an array of all articles", () => {
             return request(app).get("/api/articles")
             .expect(200)
@@ -344,6 +344,153 @@ describe("Articles", () => {
                     })
                     expect(body.articles).toBeSorted({key: "title", descending: true})
                 })
+            })
+        })
+    })
+    describe("POST /api/articles", () => {
+        test("POST: 201 - responds with object of new article", () => {
+            const newArticle = { 
+                title: "Paper Cuts - owwy owwy owwy",
+                topic: "paper",
+                author: "butter_bridge",
+                body: "They're always so much worse than you think they'll be!",
+                created_at: 1729254287294,
+                votes: 0,
+                article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+            }
+            return request(app).post("/api/articles")
+            .send(newArticle)
+            .expect(201)
+            .then(({body}) => {
+                const article = body.article
+                expect(article.title).toBe(newArticle.title)
+                expect(article.topic).toBe(newArticle.topic)
+                expect(article.author).toBe(newArticle.author)
+                expect(article.body).toBe(newArticle.body)
+                expect(article.votes).toBe(newArticle.votes)
+                expect(article.article_img_url).toBe(newArticle.article_img_url)
+                expect(typeof article.created_at).toBe("string")
+            
+            })
+        })
+        test("POST: 201 - adds the article to the article table", () => {
+            const newArticle = { 
+                title: "Paper Cuts - owwy owwy owwy",
+                topic: "paper",
+                author: "butter_bridge",
+                body: "They're always so much worse than you think they'll be!",
+                created_at: 1729254287294,
+                votes: 0,
+                article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+            }
+            return request(app).post("/api/articles")
+            .send(newArticle)
+            .expect(201)
+            .then(() => {
+                return db.query(`SELECT * FROM articles WHERE title = 'Paper Cuts - owwy owwy owwy';`)
+                .then(({rows}) => {
+                    expect(rows[0].title).toEqual(newArticle.title)
+                })
+            })
+        })
+        test("POST: 201 - should ignore unnecessary send properties", () => {
+            const newArticle = { 
+                title: "Paper Cuts - owwy owwy owwy",
+                topic: "paper",
+                author: "butter_bridge",
+                body: "They're always so much worse than you think they'll be!",
+                created_at: 1729254287294,
+                votes: 0,
+                article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+                unnecessary: "Completely unnecessary key"
+            }
+            
+            return request(app).post(`/api/articles`)
+            .send(newArticle)
+            .expect(201)
+            .then(({body}) => {
+                const article = body.article
+                expect(article.title).toBe(newArticle.title)
+                expect(article.topic).toBe(newArticle.topic)
+                expect(article.author).toBe(newArticle.author)
+                expect(article.body).toBe(newArticle.body)
+                expect(article.votes).toBe(newArticle.votes)
+                expect(article.article_img_url).toBe(newArticle.article_img_url)
+                expect(typeof article.created_at).toBe("string")
+            })
+        })
+        test("POST: 201 - successfully makes post without img_url which defaults to default img_url", () => {
+            const newArticle = { 
+                title: "Paper Cuts - owwy owwy owwy",
+                topic: "paper",
+                author: "butter_bridge",
+                body: "They're always so much worse than you think they'll be!",
+                created_at: 1729254287294,
+                votes: 0,
+            }
+            const expectedImgUrl = 'https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700'
+
+            return request(app).post("/api/articles")
+            .send(newArticle)
+            .expect(201)
+            .then(({body}) => {
+                const article = body.article
+                expect(article.title).toBe(newArticle.title)
+                expect(article.topic).toBe(newArticle.topic)
+                expect(article.author).toBe(newArticle.author)
+                expect(article.body).toBe(newArticle.body)
+                expect(article.votes).toBe(newArticle.votes)
+                expect(article.article_img_url).toBe(expectedImgUrl)
+                expect(typeof article.created_at).toBe("string")
+            })
+        })
+        test("POST: 400 - responds with 400 Bad Request when article posted without required property", () => {
+            const newArticle = { 
+                title: "Paper Cuts - owwy owwy owwy",
+                topic: "paper",
+                body: "They're always so much worse than you think they'll be!",
+                created_at: 1729254287294,
+                votes: 0,
+            }
+            return request(app).post("/api/articles")
+            .send(newArticle)
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toBe("Bad Request")
+            })
+        })
+        test("POST: 404 - responds with 404 Not Found when topic is not in the topics database", () => {
+            const newArticle = { 
+                title: "Paper Cuts - owwy owwy owwy",
+                topic: "paper cutz",
+                author: "butter_bridge",
+                body: "They're always so much worse than you think they'll be!",
+                created_at: 1729254287294,
+                votes: 0,
+                article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+            }
+            return request(app).post("/api/articles")
+            .send(newArticle)
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toBe("Topic Not Found")
+            })
+        })
+        test("POST: 404 - responds with 404 Not Found when author is not in the users database", () => {
+            const newArticle = { 
+                title: "Paper Cuts - owwy owwy owwy",
+                topic: "paper",
+                author: "brigadier_benno",
+                body: "They're always so much worse than you think they'll be!",
+                created_at: 1729254287294,
+                votes: 0,
+                article_img_url: "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
+            }
+            return request(app).post("/api/articles")
+            .send(newArticle)
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toBe("User Not Found")
             })
         })
     })

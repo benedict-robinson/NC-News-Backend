@@ -4,6 +4,7 @@ const { selectArticles } = require("../models/get-articles-model.js")
 const { selectCommentsByArticle } = require("../models/get-comments-by-article-model.js")
 const { updateVotes } = require("../models/patch-votes-by-article-id-model.js")
 const { deleteArticleById} = require("../models/delete-article-model.js")
+const { insertArticle } = require("../models/post-article.js")
 
 exports.getArticles = (req, res, next) => {
     let error = false
@@ -74,6 +75,17 @@ exports.deleteArticle = (req, res, next) => {
     const { article_id } = req.params
     deleteArticleById(article_id).then(({status}) => {
         res.status(status).send()
+    })
+    .catch((err) => {
+        next(err)
+    })
+}
+
+exports.postArticle = (req, res, next) => {
+    const articleObj = req.body
+    insertArticle(articleObj)
+    .then((response) => {
+        res.status(201).send({article: response})
     })
     .catch((err) => {
         next(err)
