@@ -727,6 +727,90 @@ describe("Votes", () => {
             })
         })
     })
+    describe("PATCH - comments/:comment_id", () => {
+        test("PATCH: 200 - responds with updated comment", () => {
+            const voteIncrease = { inc_vote: 17 }
+            return request(app).patch("/api/comments/4")
+            .send(voteIncrease)
+            .expect(200)
+            .then(({body}) => {
+                const comment = body.comment
+                expect(comment).toEqual({
+                    comment_id: 4,
+                    article_id: expect.any(Number),
+                    author: expect.any(String),
+                    votes: expect.any(Number),
+                    body: expect.any(String),
+                    created_at: expect.any(String)
+                })
+            })
+        })
+        test("PATCH: 200 - responds with an updated comment with votes increased by send request", () => {
+            const voteIncrease = { inc_vote: 17 }
+            return request(app).patch("/api/comments/5")
+            .send(voteIncrease)
+            .expect(200)
+            .then(({body}) => {
+                expect(body.comment.votes).toBe(17)
+            })
+        })
+        test("PATCH: 200 - responds with an updated comment with votes decreased by send request if negative", () => {
+            const voteIncrease = { inc_vote: -20 }
+            return request(app).patch("/api/comments/3")
+            .send(voteIncrease)
+            .expect(200)
+            .then(({body}) => {
+                expect(body.comment.votes).toBe(80)
+            })
+        })
+        test("PATCH: 200 - responds with negative votes when the vote decrease takes total into negatives", () => {
+            const voteIncrease = { inc_vote: -17 }
+            return request(app).patch("/api/comments/1")
+            .send(voteIncrease)
+            .expect(200)
+            .then(({body}) => {
+                expect(body.comment.votes).toBe(-1)
+            })
+        })
+        test("PATCH: 200 - ignores unnecessary send properties and responds with an updated comment", () => {
+            const voteIncrease = { inc_vote: 17, not_a_key: "nothing important" }
+            return request(app).patch("/api/comments/5")
+            .send(voteIncrease)
+            .expect(200)
+            .then(({body}) => {
+                expect(body.comment.votes).toBe(17)
+            })
+        })
+    })
+    describe("PATCH - comments/:comment_id - Errors", () => {
+        test("PATCH: 400 - responds with 400 Bad Request if endpoint contains invalid id type", () => {
+            const voteIncrease = { inc_vote: 120 }
+            return request(app).patch("/api/comments/not-an-id")
+            .send(voteIncrease)
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toBe("Bad Request")
+            })
+        })
+        test("PATCH: 404 - responds with 404 Not Found if endpoint contains non-existent id", () => {
+            const voteIncrease = { inc_vote: 120 }
+            return request(app).patch("/api/comments/9999")
+            .send(voteIncrease)
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toBe("Not Found")
+            })
+        })
+        test("PATCH: 400 - responds with Bad Request when attempting to patch votes without inc_vote key", () => {
+            const badPatchRequest = { nothing_here: "nada importante" }
+            return request(app).patch("/api/comments/6")
+            .send(badPatchRequest)
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toBe("Bad Request")
+            })
+        })
+    })
 })
 
 describe("Users", () => {
