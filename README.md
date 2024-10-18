@@ -4,6 +4,11 @@
 
 Created for the Northcoders Backend Review Project, this repository is a RESTful API that supplies the backend infrastructure for the managment of data in the NC News database and can handle core logic and database interactions. 
 
+With endpoints for articles, users, topics, comments, as well as added feature functions and queries, this API allows users to easily navigate around and interact with a production level database.
+
+Here is a link to the live, humourously named, hosted version: <br />
+https://backend-to-the-future.onrender.com/api
+
 **Features**
 * RESTful API design for easy integration
 * Input validation and error handling
@@ -17,7 +22,7 @@ Here is some guidance on how to get a copy of the project running in your local 
 **Prerequisites**
 * Node.js (version 22.7.0 or higher)
 * npm (or yarn) for dependencies
-* PostgreSQL for database interactions
+* PostgreSQL (version 16.4 or higher) for database interactions
 * Necessary Environment Variables - see "dotenv" examples below
 
 
