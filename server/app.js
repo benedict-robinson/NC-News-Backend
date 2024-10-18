@@ -3,7 +3,7 @@ const app = express()
 
 const { getApi } = require("./controllers/api-controller.js")
 const { getTopics, postTopic } = require("./controllers/topics-controller.js")
-const { getArticles, getArticleById, getCommentsByArticle, patchVotesOnArticle, deleteArticle } = require("./controllers/articles-controller.js")
+const { getArticles, getArticleById, getCommentsByArticle, patchVotesOnArticle, deleteArticle, postArticle } = require("./controllers/articles-controller.js")
 const { postComment, deleteComment, patchVotesOnComment } = require("./controllers/comments-controller.js")
 const { getUsers } = require("./controllers/users-controller.js")
 
@@ -16,6 +16,8 @@ app.get("/api/topics", getTopics)
 app.post("/api/topics", postTopic)
 
 app.get("/api/articles", getArticles)
+
+app.post("/api/articles", postArticle)
 
 app.get("/api/users", getUsers)
 
@@ -42,7 +44,15 @@ app.use((err, req, res, next) => {
     res.status(400).send({msg: "Bad Request"})
   }
   if (err.code === "23503") {
+    
+    const topicRegex = /topics/
+    const userRegex = /users/
+    if (topicRegex.test(err.detail)) {
+      res.status(404).send({msg: "Topic Not Found"})
+    }
+    if (userRegex.test(err.detail)) {
     res.status(404).send({msg: "User Not Found"})
+    }
   }
   else {
     next(err)
