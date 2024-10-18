@@ -11,6 +11,7 @@ Created for the Northcoders Backend Review Project, this repository is a RESTful
 * Logging and monitoring for debugging and performance
 
 **Getting Started**
+
 Here is some guidance on how to get a copy of the project running in your local environment.
 
 **Prerequisites**
@@ -99,11 +100,12 @@ npm run app-test
 
 
 **Contact**
+
 For enquires or support, general or specific, please contact:
 
-Name: Benedict Robinson
-Email: benedict.r1713@gmail.com
-GitHub: benedict-robinson
+Name: Benedict Robinson <br />
+Email: benedict.r1713@gmail.com <br />
+GitHub: benedict-robinson <br />
 
 
 **Thank you for your interest in the NC-News Backend API repository!**
