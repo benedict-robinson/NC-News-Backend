@@ -10,7 +10,7 @@ exports.insertComment = (id, bodyArg, authorArg) => {
     return db.query(`SELECT article_id FROM articles WHERE article_id = $1;`, [id])
     .then(({rows}) => {
         if (rows.length === 0) {
-            return Promise.reject({ status:404, msg: "Not Found"})
+            return Promise.reject({ status:404, msg: "Article Not Found"})
         }
         
         const { created_at } = convertTimestampToDate({created_at: Date.now()})

@@ -229,21 +229,21 @@ describe("Articles", () => {
                 return request(app).get("/api/articles?not-a-query=title")
                 .expect(400)
                 .then(({body}) => {
-                    expect(body.msg).toBe("Bad Request")
+                    expect(body.msg).toBe("Bad Request - Invalid Query")
                 })
             })
             test("GET: 400 - responds with 400 Bad Request when a query is given that is not accepted (order)", () => {
                 return request(app).get("/api/articles?order=not-a-query")
                 .expect(400)
                 .then(({body}) => {
-                    expect(body.msg).toBe("Bad Request")
+                    expect(body.msg).toBe("Bad Request - Invalid Query")
                 })
             })
             test("GET: 400 - responds with 400 Bad Request when a query is given that is not accepted (sort_by)", () => {
                 return request(app).get("/api/articles?sort_by=not-a-query")
                 .expect(400)
                 .then(({body}) => {
-                    expect(body.msg).toBe("Bad Request")
+                    expect(body.msg).toBe("Bad Request - Invalid Query")
                 })
             })
             test("Topic - responds with articles filtered by topic when valid topic query given", () => {
@@ -274,14 +274,14 @@ describe("Articles", () => {
                 return request(app).get("/api/articles?topic=4")
                 .expect(400)
                 .then(({body}) => {
-                    expect(body.msg).toBe("Bad Request")
+                    expect(body.msg).toBe("Bad Request - Invalid Topic")
                 })
             })
             test("GET: 404 - responds with 404 Not Found when given a valid but non-existent topic query", () => {
                 return request(app).get("/api/articles?topic=dutch_cheese")
                 .expect(404)
                 .then(({body}) => {
-                    expect(body.msg).toBe("Not Found")
+                    expect(body.msg).toBe("Topic Not Found")
                 })
             })
             test("Author - responds with articles filtered by author when valid author query given", () => {
@@ -312,14 +312,14 @@ describe("Articles", () => {
                 return request(app).get("/api/articles?author=4")
                 .expect(400)
                 .then(({body}) => {
-                    expect(body.msg).toBe("Bad Request")
+                    expect(body.msg).toBe("Bad Request - Invalid Username")
                 })
             })
             test("GET: 404 - responds with 404 Not Found when given a valid but non-existent topic query", () => {
                 return request(app).get("/api/articles?author=dutch_cheese")
                 .expect(404)
                 .then(({body}) => {
-                    expect(body.msg).toBe("Not Found")
+                    expect(body.msg).toBe("User Not Found")
                 })
             })
             test("GET: 200 - topic & author queries can be chained", () => {
@@ -527,25 +527,23 @@ describe("Articles", () => {
                 expect(body.msg).toEqual("Article Not Found")
             })
         })
-        describe("GET articles by id - queries", () => {
-            test("Comment Count - responds get: 200 and lists the total number of comments on the selected article", () => {
-                return request(app).get("/api/articles/6?comment_count")
-                .expect(200)
-                .then(({body}) => {
-                    const articleSix = {
-                        article_id: 6,
-                        title: "A",
-                        topic: "mitch",
-                        author: "icellusedkars",
-                        body: "Delicious tin of cat food",
-                        created_at: "2020-10-18 02:00:00",
-                        votes: 0,
-                        article_img_url:
-                          "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-                        comment_count: 1
-                      }
-                    expect(body.article).toEqual(articleSix)
-                })
+        test("Comment Count - responds get: 200 and lists the total number of comments on the selected article", () => {
+            return request(app).get("/api/articles/6?comment_count")
+            .expect(200)
+            .then(({body}) => {
+                const articleSix = {
+                    article_id: 6,
+                    title: "A",
+                    topic: "mitch",
+                    author: "icellusedkars",
+                    body: "Delicious tin of cat food",
+                    created_at: "2020-10-18 02:00:00",
+                    votes: 0,
+                    article_img_url:
+                        "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+                    comment_count: 1
+                    }
+                expect(body.article).toEqual(articleSix)
             })
         })
         describe("DELETE articles by id", () => {
@@ -576,7 +574,7 @@ describe("Articles", () => {
                 return request(app).delete("/api/articles/9999")
                 .expect(404)
                 .then(({body}) => {
-                    expect(body.msg).toBe("Not Found")
+                    expect(body.msg).toBe("Article Not Found")
                 })
             })
         })
@@ -714,7 +712,7 @@ describe("Comments - POST/PATCH/DELETE", () => {
             .send(comment)
             .expect(404)
             .then(({body}) => {
-                expect(body.msg).toBe("Not Found")
+                expect(body.msg).toBe("Article Not Found")
             })
         })
         test("POST: 400 - responds with 400 error when attempting to comment without required porperties (body)", () => {
@@ -780,7 +778,7 @@ describe("Comments - POST/PATCH/DELETE", () => {
             return request(app).delete("/api/comments/9999")
             .expect(404)
             .then(({body}) => {
-                expect(body.msg).toBe("Not Found")
+                expect(body.msg).toBe("Comment Not Found")
             })
         })
     })
@@ -861,7 +859,7 @@ describe("Votes", () => {
             .send(voteIncrease)
             .expect(404)
             .then(({body}) => {
-                expect(body.msg).toBe("Not Found")
+                expect(body.msg).toBe("Article Not Found")
             })
         })
         test("PATCH: 400 - responds with Bad Request when attempting to patch votes without inc_vote key", () => {
@@ -945,7 +943,7 @@ describe("Votes", () => {
             .send(voteIncrease)
             .expect(404)
             .then(({body}) => {
-                expect(body.msg).toBe("Not Found")
+                expect(body.msg).toBe("Comment Not Found")
             })
         })
         test("PATCH: 400 - responds with Bad Request when attempting to patch votes without inc_vote key", () => {

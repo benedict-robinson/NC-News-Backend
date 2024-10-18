@@ -15,7 +15,7 @@ exports.selectCommentsByArticle = (id) => {
         const rows = dataArr[0]
         const article = dataArr[1]
         if (rows.length === 0 && !article) {
-            return Promise.reject({status: 404, msg: "Not Found"})
+            return Promise.reject({status: 404, msg: "Article Not Found"})
         }
         if (rows.length == 0 && article) {
             return {

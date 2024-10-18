@@ -5,7 +5,7 @@ const { selectTopics } = require("./get-topic-model.js")
 const { selectUsers } = require("./get-users-model.js")
 
 
-exports.selectArticles = (sort_by = "created_at", order = "asc", error, defaultOrder, topic, author) => {
+exports.selectArticles = (sort_by = "created_at", order = "asc", defaultOrder, topic, author) => {
     return selectUsers().then((users) => {
         const authors = users.map(user => user.username)
         return Promise.all([selectTopics(), authors])
@@ -16,14 +16,14 @@ exports.selectArticles = (sort_by = "created_at", order = "asc", error, defaultO
         const topics = rows.map(topic => topic.slug)
         const validSortBys = ["created_at", "author", "title", "topic", "votes"]
         const validOrders = ["asc", "desc"]
-        if (!validSortBys.includes(sort_by) || !validOrders.includes(order) || error) {
-            return Promise.reject({status: 400, msg: "Bad Request"})
+        if (!validSortBys.includes(sort_by) || !validOrders.includes(order)) {
+            return Promise.reject({status: 400, msg: "Bad Request - Invalid Query"})
         }
         if (!topics.includes(topic) && topic) {
-            return Promise.reject({status: 404, msg: "Not Found"})
+            return Promise.reject({status: 404, msg: "Topic Not Found"})
         }
         if (!authors.includes(author) && author) {
-            return Promise.reject({status: 404, msg: "Not Found"})
+            return Promise.reject({status: 404, msg: "User Not Found"})
         }
         if (!defaultOrder) {
             order = "desc"

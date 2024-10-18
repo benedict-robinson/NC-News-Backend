@@ -7,7 +7,7 @@ exports.deleteCommentById = (id) => {
             return comment.comment_id
         })
         if (!commentIds.includes(Number(id)) && Number(id)) {
-            return Promise.reject({ status:404, msg: "Not Found"})
+            return Promise.reject({ status:404, msg: "Comment Not Found"})
         }
     const deleteQuery = `DELETE FROM comments
     WHERE comment_id = $1;`

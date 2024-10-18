@@ -8,7 +8,7 @@ exports.deleteArticleById = (id) => {
             return article.article_id
         })
         if (!articleIds.includes(Number(id)) && Number(id)) {
-            return Promise.reject({ status:404, msg: "Not Found"})
+            return Promise.reject({ status:404, msg: "Article Not Found"})
         }
     const deleteQuery = `DELETE FROM articles
     WHERE article_id = $1;`

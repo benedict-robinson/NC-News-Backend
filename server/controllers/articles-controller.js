@@ -7,7 +7,6 @@ const { deleteArticleById} = require("../models/delete-article-model.js")
 const { insertArticle } = require("../models/post-article.js")
 
 exports.getArticles = (req, res, next) => {
-    let error = false
     const { sort_by, order, topic, author} = req.query
     let defaultOrder = true
     if (!sort_by || sort_by === 'votes' || sort_by === 'created_at') {
@@ -19,13 +18,16 @@ exports.getArticles = (req, res, next) => {
     const queries = Object.keys(req.query)
     queries.forEach(query => {
         if (!validQueries.includes(query)) {
-           error = true
+            res.status(400).send({msg: "Bad Request - Invalid Query"})
         }
-        if (Number(topic) || Number(author)) {
-            error = true
+        if (Number(topic)) {
+            res.status(400).send({msg: "Bad Request - Invalid Topic"})
+        }
+        if (Number(author)) {
+            res.status(400).send({msg: "Bad Request - Invalid Username"})
         }
     })
-    selectArticles(sort_by, order, error, defaultOrder, topic, author).then((response) => {
+    selectArticles(sort_by, order, defaultOrder, topic, author).then((response) => {
         res.status(200).send({articles: response})
     })
     .catch((err) => {
