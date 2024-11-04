@@ -638,6 +638,37 @@ describe("Articles", () => {
 })
 
 describe("Comments - POST/PATCH/DELETE", () => {
+    describe("GET by id", () => {
+        test("GET: 200 - responds with comment selected by unique ID", () => {
+            return request(app).get("/api/comments/4")
+            .expect(200)
+            .then(({body}) => {
+                const comment = {
+                    comment_id: 4,
+                    body: ' I carry a log — yes. Is it funny to you? It is not to me.',
+                    article_id: 1,
+                    author: 'icellusedkars',
+                    votes: -100,
+                    created_at: '2020-02-23T12:01:00.000Z'
+                  }
+               expect(body.comment).toEqual(comment) 
+            })
+        })
+        test("GET: 400 - returns an error 400 Bad Request if the endpoint does not contain a valid id data type", () => {
+            return request(app).get("/api/comments/not-an-id")
+            .expect(400)
+            .then(({body}) => {
+                expect(body.msg).toEqual("Bad Request")
+            })
+        })
+        test("GET: 404 - returns an error 404 Not Found if the endpoint contains an id that does not exist", () => {
+            return request(app).get("/api/Comments/60000")
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toEqual("Comment Not Found")
+            })
+        })
+    })
     describe("POST", () => {
         test("POST: 201 - should return the posted comment", () => {
             const comment = {

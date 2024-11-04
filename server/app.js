@@ -5,7 +5,7 @@ const cors = require("cors")
 const { getApi } = require("./controllers/api-controller.js")
 const { getTopics, postTopic } = require("./controllers/topics-controller.js")
 const { getArticles, getArticleById, getCommentsByArticle, patchVotesOnArticle, deleteArticle, postArticle } = require("./controllers/articles-controller.js")
-const { postComment, deleteComment, patchVotesOnComment } = require("./controllers/comments-controller.js")
+const { postComment, deleteComment, patchVotesOnComment, getCommentById } = require("./controllers/comments-controller.js")
 const { getUsers } = require("./controllers/users-controller.js")
 
 app.use(cors())
@@ -30,6 +30,8 @@ app.get("/api/articles/:article_id/comments", getCommentsByArticle)
 app.post("/api/articles/:article_id/comments", postComment)
 
 app.patch("/api/articles/:article_id", patchVotesOnArticle)
+
+app.get("/api/comments/:comment_id", getCommentById)
 
 app.patch("/api/comments/:comment_id", patchVotesOnComment)
 

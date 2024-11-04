@@ -3,6 +3,18 @@ const { insertComment } = require("../models/post-comment-model.js")
 const { deleteCommentById } = require("../models/delete-comment-model.js")
 const { updateCommentVotes } = require("../models/patch-votes-by-comment-id-model.js")
 const { response } = require("../app.js")
+const { selectCommentsById } = require("../models/get-comment-by-id")
+
+exports.getCommentById = (req, res, next) => {
+    const commentId = req.params.comment_id
+    selectCommentsById(commentId)
+    .then((response) => {
+        res.status(200).send({comment: response})
+    })
+    .catch((err) => {
+        next(err)
+    })
+}
 
 exports.postComment = (req, res, next) => {
     const { body, author } = req.body
