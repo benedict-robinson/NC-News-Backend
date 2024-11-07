@@ -198,6 +198,33 @@ describe("Articles", () => {
                     expect(articles).toBeSorted({key: "title"})
                 })
             })
+            test("Sort By - articles can be sorted by votes", () => {
+                return request(app).get("/api/articles?sort_by=votes")
+                .expect(200)
+                .then(({body}) => {
+                    const articles = body.articles
+                    expect(articles.length).toBe(13)
+                    expect(articles).toBeSorted({key: "votes", descending: true})
+                })
+            })
+            test("Sort By - articles can be sorted by comment count", () => {
+                return request(app).get("/api/articles?sort_by=comment_count")
+                .expect(200)
+                .then(({body}) => {
+                    const articles = body.articles
+                    expect(articles.length).toBe(13)
+                    expect(articles).toBeSorted({key: "comment_count"})
+                })
+            })
+            test("Sort By - articles can be sorted by comment count DESCENDING", () => {
+                return request(app).get("/api/articles?sort_by=comment_count&order=desc")
+                .expect(200)
+                .then(({body}) => {
+                    const articles = body.articles
+                    expect(articles.length).toBe(13)
+                    expect(articles).toBeSorted({key: "comment_count", descending: true})
+                })
+            })
             test("Order - articles can be ordered by DESC if specified (ASC is default) when queries chained", () => {
                 return request(app).get("/api/articles?sort_by=title&order=desc")
                 .expect(200)

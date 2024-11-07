@@ -9,6 +9,7 @@ const { postComment, deleteComment, patchVotesOnComment, getCommentById } = requ
 const { getUsers } = require("./controllers/users-controller.js")
 
 app.use(cors())
+
 app.use(express.json())
 
 app.get("/api", getApi)

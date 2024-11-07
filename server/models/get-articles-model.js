@@ -14,7 +14,7 @@ exports.selectArticles = (sort_by = "created_at", order = "asc", defaultOrder, t
         const rows = topicsAndAuthors[0].rows
         const authors = topicsAndAuthors[1]
         const topics = rows.map(topic => topic.slug)
-        const validSortBys = ["created_at", "author", "title", "topic", "votes"]
+        const validSortBys = ["created_at", "author", "title", "topic", "votes", "comment_count"]
         const validOrders = ["asc", "desc"]
         if (!validSortBys.includes(sort_by) || !validOrders.includes(order)) {
             return Promise.reject({status: 400, msg: "Bad Request - Invalid Query"})
@@ -30,7 +30,8 @@ exports.selectArticles = (sort_by = "created_at", order = "asc", defaultOrder, t
         }
         
         let whereQuery = [""]
-
+        
+        
         if (topic || author) whereQuery.push(`WHERE `)
         if (topic) whereQuery.push(`topic = '${topic}' `)
         if (topic && author) whereQuery.push(`AND `)
@@ -40,10 +41,22 @@ exports.selectArticles = (sort_by = "created_at", order = "asc", defaultOrder, t
         FROM articles
         LEFT JOIN comments ON comments.article_id = articles.article_id
         ${whereQuery.join("")}
-        ORDER BY ${sort_by} ${order};`
+        ORDER BY ${sort_by === "comment_count" ? "created_at" : sort_by} ${order};`
+        
         return db.query(selectArticlesQuery)
     })
     .then(({rows}) => {
+        if (sort_by === "comment_count") {
+            const articlesWithCommentCount = commentCounter(rows)
+            return articlesWithCommentCount.sort((a, b) => {
+                if (order === "asc") {
+                    return a.comment_count - b.comment_count
+                }
+                else {
+                    return b.comment_count - a.comment_count
+                }
+            })
+        }
         return commentCounter(rows)
     })
 }

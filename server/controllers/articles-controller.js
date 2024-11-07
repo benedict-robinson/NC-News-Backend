@@ -8,6 +8,7 @@ const { insertArticle } = require("../models/post-article.js")
 
 exports.getArticles = (req, res, next) => {
     const { sort_by, order, topic, author} = req.query
+    
     let defaultOrder = true
     if (!sort_by || sort_by === 'votes' || sort_by === 'created_at') {
         if (!order) {
