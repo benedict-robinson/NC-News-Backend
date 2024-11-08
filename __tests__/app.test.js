@@ -47,13 +47,13 @@ describe("Topics", () => {
                 expect(topics.length).toBe(3)
             })
         })
-        test("GET: 200 - each topic should have a key of 'description', 'slug' and 'created_by'", () => {
+        test("GET: 200 - each topic should have a key of 'description' and 'slug'", () => {
             return request(app).get("/api/topics")
             .expect(200)
             .then(({body}) => {
                 const topics = body.topics
                 topics.forEach(topic => {
-                    expect(Object.keys(topic)).toEqual([ "slug", "description", "created_by"])
+                    expect(Object.keys(topic)).toEqual([ "slug", "description"])
                 })
             })
         })
@@ -80,29 +80,23 @@ describe("Topics", () => {
         test("POST: 201 - responds with object of new topic", () => {
             const newTopic = { "slug": 'Dutch Cheese', 
                 "description": "What's gouda-nuff for them, is gouda-nuff for us" }
-            const expectedTopic = { "slug": 'Dutch Cheese', 
-                "description": "What's gouda-nuff for them, is gouda-nuff for us",
-                "created_by": null }     
             return request(app).post("/api/topics")
             .send(newTopic)
             .expect(201)
             .then(({body}) => {
-                expect(body.topic).toEqual(expectedTopic)
+                expect(body.topic).toEqual(newTopic)
             })
         })
         test("POST: 201 - adds the topic to the topic table", () => {
             const newTopic = { "slug": "Dutch Cheese", 
                 "description": "What's gouda-nuff for them, is gouda-nuff for us" }
-            const expectedTopic = { "slug": 'Dutch Cheese', 
-                "description": "What's gouda-nuff for them, is gouda-nuff for us",
-                "created_by": null }  
             return request(app).post("/api/topics")
             .send(newTopic)
             .expect(201)
             .then(() => {
                 return db.query(`SELECT * FROM topics WHERE slug = 'Dutch Cheese';`)
                 .then(({rows}) => {
-                    expect(rows[0]).toEqual(expectedTopic)
+                    expect(rows[0]).toEqual(newTopic)
                 })
             })
         })
@@ -111,8 +105,7 @@ describe("Topics", () => {
                 "description": "What's gouda-nuff for them, is gouda-nuff for us",
                 "useless-key": "useless info" }
             const expectedTopic = { "slug": "Dutch Cheese", 
-                "description": "What's gouda-nuff for them, is gouda-nuff for us",
-                "created_by": null }
+                "description": "What's gouda-nuff for them, is gouda-nuff for us" }
             return request(app).post(`/api/topics`)
             .send(newTopic)
             .expect(201)
@@ -128,23 +121,8 @@ describe("Topics", () => {
             .then(({body}) => {
                 expect(body.topic).toEqual({
                     slug: "Dutch Cheese",
-                    description: null,
-                    created_by: null
+                    description: null
                 })
-            })
-        })
-        test("POST: 201 - works with created_by key", () => {
-            const newTopic = { "created_by": "tickle123", 
-                "description": "What's gouda-nuff for them, is gouda-nuff for us",
-                "slug": "Dutch Cheese"}
-            const expectedTopic = { "slug": "Dutch Cheese", 
-                "description": "What's gouda-nuff for them, is gouda-nuff for us",
-                "created_by": "tickle123" }
-            return request(app).post(`/api/topics`)
-            .send(newTopic)
-            .expect(201)
-            .then(({body}) => {
-                expect(body.topic).toEqual(expectedTopic)
             })
         })
         test("POST: 400 - responds with 400 Bad Request when topic posted without required slug property", () => {
@@ -153,7 +131,7 @@ describe("Topics", () => {
             .send(newTopic)
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toBe("Bad Request - PSQL Error 23502")
+                expect(body.msg).toBe("Bad Request")
             })
         })
     })
@@ -505,7 +483,7 @@ describe("Articles", () => {
             .send(newArticle)
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toBe("Bad Request - PSQL Error 23502")
+                expect(body.msg).toBe("Bad Request")
             })
         })
         test("POST: 404 - responds with 404 Not Found when topic is not in the topics database", () => {
@@ -616,7 +594,7 @@ describe("Articles", () => {
                 return request(app).delete("/api/articles/not-an-id")
                 .expect(400)
                 .then(({body}) => {
-                    expect(body.msg).toBe("Bad Request - PSQL Error 22P02")
+                    expect(body.msg).toBe("Bad Request")
                 })
             })
             test("DELETE: 404 - responds with 404 Not Found when given an non-existent id", () => {
@@ -665,7 +643,7 @@ describe("Articles", () => {
             return request(app).get("/api/articles/not-an-id/comments")
             .expect(400)
             .then(({body}) => {
-               expect(body.msg).toBe('Bad Request - PSQL Error 22P02') 
+               expect(body.msg).toBe('Bad Request') 
             })
         })
         test("GET: 404 - returns Not Found when id doesn't exist", () => {
@@ -707,7 +685,7 @@ describe("Comments - POST/PATCH/DELETE", () => {
             return request(app).get("/api/comments/not-an-id")
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toEqual("Bad Request - PSQL Error 22P02")
+                expect(body.msg).toEqual("Bad Request")
             })
         })
         test("GET: 404 - returns an error 404 Not Found if the endpoint contains an id that does not exist", () => {
@@ -780,7 +758,7 @@ describe("Comments - POST/PATCH/DELETE", () => {
             .send(comment)
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toBe("Bad Request - PSQL Error 22P02")
+                expect(body.msg).toBe("Bad Request")
             })
         })
         test("POST: 404 - returns Error 404 Not Found when article id does not exist", () => {
@@ -851,7 +829,7 @@ describe("Comments - POST/PATCH/DELETE", () => {
             return request(app).delete("/api/comments/not-an-id")
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toBe("Bad Request - PSQL Error 22P02")
+                expect(body.msg).toBe("Bad Request")
             })
         })
         test("DELETE: 404 - responds with 404 Not Found when given an non-existent id", () => {
@@ -930,7 +908,7 @@ describe("Votes", () => {
             .send(voteIncrease)
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toBe("Bad Request - PSQL Error 22P02")
+                expect(body.msg).toBe("Bad Request")
             })
         })
         test("PATCH: 404 - responds with 404 Not Found if endpoint contains non-existent id", () => {
@@ -948,7 +926,7 @@ describe("Votes", () => {
             .send(badPatchRequest)
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toBe("Bad Request - PSQL Error 23502")
+                expect(body.msg).toBe("Bad Request")
             })
         })
     })
@@ -1014,7 +992,7 @@ describe("Votes", () => {
             .send(voteIncrease)
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toBe("Bad Request - PSQL Error 22P02")
+                expect(body.msg).toBe("Bad Request")
             })
         })
         test("PATCH: 404 - responds with 404 Not Found if endpoint contains non-existent id", () => {
@@ -1032,7 +1010,7 @@ describe("Votes", () => {
             .send(badPatchRequest)
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toBe("Bad Request - PSQL Error 23502")
+                expect(body.msg).toBe("Bad Request")
             })
         })
     })

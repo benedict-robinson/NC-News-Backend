@@ -12,8 +12,8 @@ exports.getTopics = (req, res, next) => {
 }
 
 exports.postTopic = (req, res, next) => {
-    const { slug, description, created_by } = req.body
-    insertTopic(slug, description, created_by)
+    const { slug, description } = req.body
+    insertTopic(slug, description)
     .then((response) => {
         res.status(201).send({topic: response})
     })
