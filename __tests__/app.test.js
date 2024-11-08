@@ -134,9 +134,9 @@ describe("Topics", () => {
             })
         })
         test("POST: 201 - works with created_by key", () => {
-            const newTopic = { "created_by": "tickle123", 
+            const newTopic = { "slug": "Dutch Cheese", 
                 "description": "What's gouda-nuff for them, is gouda-nuff for us",
-                "slug": "Dutch Cheese"}
+                "created_by": "tickle123" }
             const expectedTopic = { "slug": "Dutch Cheese", 
                 "description": "What's gouda-nuff for them, is gouda-nuff for us",
                 "created_by": "tickle123" }
@@ -153,7 +153,7 @@ describe("Topics", () => {
             .send(newTopic)
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toBe("Bad Request - PSQL Error 23502")
+                expect(body.msg).toBe("Bad Request")
             })
         })
     })
@@ -505,7 +505,7 @@ describe("Articles", () => {
             .send(newArticle)
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toBe("Bad Request - PSQL Error 23502")
+                expect(body.msg).toBe("Bad Request")
             })
         })
         test("POST: 404 - responds with 404 Not Found when topic is not in the topics database", () => {
@@ -616,7 +616,7 @@ describe("Articles", () => {
                 return request(app).delete("/api/articles/not-an-id")
                 .expect(400)
                 .then(({body}) => {
-                    expect(body.msg).toBe("Bad Request - PSQL Error 22P02")
+                    expect(body.msg).toBe("Bad Request")
                 })
             })
             test("DELETE: 404 - responds with 404 Not Found when given an non-existent id", () => {
@@ -665,7 +665,7 @@ describe("Articles", () => {
             return request(app).get("/api/articles/not-an-id/comments")
             .expect(400)
             .then(({body}) => {
-               expect(body.msg).toBe('Bad Request - PSQL Error 22P02') 
+               expect(body.msg).toBe('Bad Request') 
             })
         })
         test("GET: 404 - returns Not Found when id doesn't exist", () => {
@@ -707,7 +707,7 @@ describe("Comments - POST/PATCH/DELETE", () => {
             return request(app).get("/api/comments/not-an-id")
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toEqual("Bad Request - PSQL Error 22P02")
+                expect(body.msg).toEqual("Bad Request")
             })
         })
         test("GET: 404 - returns an error 404 Not Found if the endpoint contains an id that does not exist", () => {
@@ -780,7 +780,7 @@ describe("Comments - POST/PATCH/DELETE", () => {
             .send(comment)
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toBe("Bad Request - PSQL Error 22P02")
+                expect(body.msg).toBe("Bad Request")
             })
         })
         test("POST: 404 - returns Error 404 Not Found when article id does not exist", () => {
@@ -851,7 +851,7 @@ describe("Comments - POST/PATCH/DELETE", () => {
             return request(app).delete("/api/comments/not-an-id")
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toBe("Bad Request - PSQL Error 22P02")
+                expect(body.msg).toBe("Bad Request")
             })
         })
         test("DELETE: 404 - responds with 404 Not Found when given an non-existent id", () => {
@@ -930,7 +930,7 @@ describe("Votes", () => {
             .send(voteIncrease)
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toBe("Bad Request - PSQL Error 22P02")
+                expect(body.msg).toBe("Bad Request")
             })
         })
         test("PATCH: 404 - responds with 404 Not Found if endpoint contains non-existent id", () => {
@@ -948,7 +948,7 @@ describe("Votes", () => {
             .send(badPatchRequest)
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toBe("Bad Request - PSQL Error 23502")
+                expect(body.msg).toBe("Bad Request")
             })
         })
     })
@@ -1014,7 +1014,7 @@ describe("Votes", () => {
             .send(voteIncrease)
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toBe("Bad Request - PSQL Error 22P02")
+                expect(body.msg).toBe("Bad Request")
             })
         })
         test("PATCH: 404 - responds with 404 Not Found if endpoint contains non-existent id", () => {
@@ -1032,7 +1032,7 @@ describe("Votes", () => {
             .send(badPatchRequest)
             .expect(400)
             .then(({body}) => {
-                expect(body.msg).toBe("Bad Request - PSQL Error 23502")
+                expect(body.msg).toBe("Bad Request")
             })
         })
     })
