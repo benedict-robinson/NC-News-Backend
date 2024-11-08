@@ -47,13 +47,13 @@ describe("Topics", () => {
                 expect(topics.length).toBe(3)
             })
         })
-        test("GET: 200 - each topic should have a key of 'description' and 'slug'", () => {
+        test("GET: 200 - each topic should have a key of 'description', 'slug' and 'created_by'", () => {
             return request(app).get("/api/topics")
             .expect(200)
             .then(({body}) => {
                 const topics = body.topics
                 topics.forEach(topic => {
-                    expect(Object.keys(topic)).toEqual([ "slug", "description"])
+                    expect(Object.keys(topic)).toEqual([ "slug", "description", "created_by"])
                 })
             })
         })
@@ -80,23 +80,29 @@ describe("Topics", () => {
         test("POST: 201 - responds with object of new topic", () => {
             const newTopic = { "slug": 'Dutch Cheese', 
                 "description": "What's gouda-nuff for them, is gouda-nuff for us" }
+            const expectedTopic = { "slug": 'Dutch Cheese', 
+                "description": "What's gouda-nuff for them, is gouda-nuff for us",
+                "created_by": null }     
             return request(app).post("/api/topics")
             .send(newTopic)
             .expect(201)
             .then(({body}) => {
-                expect(body.topic).toEqual(newTopic)
+                expect(body.topic).toEqual(expectedTopic)
             })
         })
         test("POST: 201 - adds the topic to the topic table", () => {
             const newTopic = { "slug": "Dutch Cheese", 
                 "description": "What's gouda-nuff for them, is gouda-nuff for us" }
+            const expectedTopic = { "slug": 'Dutch Cheese', 
+                "description": "What's gouda-nuff for them, is gouda-nuff for us",
+                "created_by": null }  
             return request(app).post("/api/topics")
             .send(newTopic)
             .expect(201)
             .then(() => {
                 return db.query(`SELECT * FROM topics WHERE slug = 'Dutch Cheese';`)
                 .then(({rows}) => {
-                    expect(rows[0]).toEqual(newTopic)
+                    expect(rows[0]).toEqual(expectedTopic)
                 })
             })
         })
@@ -105,7 +111,8 @@ describe("Topics", () => {
                 "description": "What's gouda-nuff for them, is gouda-nuff for us",
                 "useless-key": "useless info" }
             const expectedTopic = { "slug": "Dutch Cheese", 
-                "description": "What's gouda-nuff for them, is gouda-nuff for us" }
+                "description": "What's gouda-nuff for them, is gouda-nuff for us",
+                "created_by": null }
             return request(app).post(`/api/topics`)
             .send(newTopic)
             .expect(201)
@@ -121,8 +128,23 @@ describe("Topics", () => {
             .then(({body}) => {
                 expect(body.topic).toEqual({
                     slug: "Dutch Cheese",
-                    description: null
+                    description: null,
+                    created_by: null
                 })
+            })
+        })
+        test("POST: 201 - works with created_by key", () => {
+            const newTopic = { "slug": "Dutch Cheese", 
+                "description": "What's gouda-nuff for them, is gouda-nuff for us",
+                "created_by": "tickle123" }
+            const expectedTopic = { "slug": "Dutch Cheese", 
+                "description": "What's gouda-nuff for them, is gouda-nuff for us",
+                "created_by": "tickle123" }
+            return request(app).post(`/api/topics`)
+            .send(newTopic)
+            .expect(201)
+            .then(({body}) => {
+                expect(body.topic).toEqual(expectedTopic)
             })
         })
         test("POST: 400 - responds with 400 Bad Request when topic posted without required slug property", () => {
