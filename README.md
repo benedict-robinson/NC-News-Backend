@@ -33,7 +33,7 @@ Here is some guidance on how to get a copy of the project running in your local 
 Clone the repo with the link
 
 ```
-git clone https://github.com/username/repository-name.git
+git clone https://github.com/benedict-robinson/NC-News-Backend
 ```
 
 Install dependencies
