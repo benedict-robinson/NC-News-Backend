@@ -22,8 +22,7 @@ const seed = ({ topicData, userData, articleData, commentData }) => {
       const topicsTablePromise = db.query(`
       CREATE TABLE topics (
         slug VARCHAR PRIMARY KEY,
-        description VARCHAR,
-        created_by VARCHAR
+        description VARCHAR
       );`);
 
       const usersTablePromise = db.query(`
