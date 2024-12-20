@@ -628,7 +628,7 @@ describe("Articles", () => {
             })
         })
     })
-    describe("/api/articles/:article_id/comments", () => {
+    describe("GET /api/articles/:article_id/comments", () => {
         test("GET: 200 - returns an array of all comments for specified article", () => {
             return request(app).get("/api/articles/1/comments")
             .expect(200)
