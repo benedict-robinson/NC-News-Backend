@@ -125,6 +125,20 @@ describe("Topics", () => {
                 })
             })
         })
+        test("POST: 201 - works with created_by key", () => {
+            const newTopic = { "slug": "Dutch Cheese", 
+                "description": "What's gouda-nuff for them, is gouda-nuff for us",
+                "created_by": "tickle123" }
+            const expectedTopic = { "slug": "Dutch Cheese", 
+                "description": "What's gouda-nuff for them, is gouda-nuff for us",
+                "created_by": "tickle123" }
+            return request(app).post(`/api/topics`)
+            .send(newTopic)
+            .expect(201)
+            .then(({body}) => {
+                expect(body.topic).toEqual(expectedTopic)
+            })
+        })
         test("POST: 400 - responds with 400 Bad Request when topic posted without required slug property", () => {
             const newTopic = { "description": "What's gouda-nuff for them, is gouda-nuff for us" }
             return request(app).post("/api/topics")
@@ -606,7 +620,7 @@ describe("Articles", () => {
             })
         })
     })
-    describe("/api/articles/:article_id/comments", () => {
+    describe("GET /api/articles/:article_id/comments", () => {
         test("GET: 200 - returns an array of all comments for specified article", () => {
             return request(app).get("/api/articles/1/comments")
             .expect(200)
