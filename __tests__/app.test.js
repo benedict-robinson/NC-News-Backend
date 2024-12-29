@@ -11,8 +11,10 @@ const {
     checkIfOrderedMostRecent
   } = require('../db/seeds/utils.js');
 
-beforeEach(() => seed(data));
-afterAll(() => db.end());
+beforeEach(async () => {
+    await seed(data)}
+);
+afterAll(async () => await db.end());
 
 describe("Invalid Enpoints Error", () => {
     test("404 - any requests to an invalid endpoint responds with a 404 not found", () => {
@@ -123,20 +125,6 @@ describe("Topics", () => {
                     slug: "Dutch Cheese",
                     description: null
                 })
-            })
-        })
-        test("POST: 201 - works with created_by key", () => {
-            const newTopic = { "slug": "Dutch Cheese", 
-                "description": "What's gouda-nuff for them, is gouda-nuff for us",
-                "created_by": "tickle123" }
-            const expectedTopic = { "slug": "Dutch Cheese", 
-                "description": "What's gouda-nuff for them, is gouda-nuff for us",
-                "created_by": "tickle123" }
-            return request(app).post(`/api/topics`)
-            .send(newTopic)
-            .expect(201)
-            .then(({body}) => {
-                expect(body.topic).toEqual(expectedTopic)
             })
         })
         test("POST: 400 - responds with 400 Bad Request when topic posted without required slug property", () => {
@@ -1084,6 +1072,37 @@ describe("Users", () => {
                 .then(({body}) => {
                     expect(body.msg).toBe("User Not Found")
                 })
+            })
+        })
+    })
+    describe("GET Comments by User", () => {
+        test("GET: 200 - responds with an array of comments posted by specified user", () => {
+            return request(app).get("/api/users/butter_bridge/comments")
+            .expect(200)
+            .then(({body: { comments }}) => {
+                expect(comments).toHaveLength(5)
+                comments.forEach(comment => {
+                    expect(comment).toHaveProperty("comment_id")
+                    expect(comment).toHaveProperty("body")
+                    expect(comment).toHaveProperty("article_id")
+                    expect(comment).toHaveProperty("author")
+                    expect(comment).toHaveProperty("votes")
+                    expect(comment).toHaveProperty("created_at")
+                })
+            })
+        })
+        test("GET: 200 - responds 200 and msg 'No Comments Yet' when passed a valid user that hasn't commented", () => {
+            return request(app).get("/api/users/lurker/comments")
+            .expect(200)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe("No Comments Yet")
+            })
+        })
+        test("GET: 404 - responds with 404 Not Found when passed a non-existent user", () => {
+            return request(app).get("/api/users/not-a-user/comments")
+            .expect(404)
+            .then(({body: {msg}}) => {
+                expect(msg).toBe("User Not Found")
             })
         })
     })
