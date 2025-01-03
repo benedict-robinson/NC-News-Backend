@@ -6,7 +6,7 @@ const { getApi } = require("./controllers/api-controller.js")
 const { getTopics, postTopic } = require("./controllers/topics-controller.js")
 const { getArticles, getArticleById, getCommentsByArticle, patchVotesOnArticle, deleteArticle, postArticle } = require("./controllers/articles-controller.js")
 const { postComment, deleteComment, patchVotesOnComment, getCommentById } = require("./controllers/comments-controller.js")
-const { getUsers, getCommentsByUsername } = require("./controllers/users-controller.js")
+const { getUsers, getCommentsByUsername, patchUser } = require("./controllers/users-controller.js")
 
 app.use(cors())
 
@@ -33,6 +33,8 @@ app.patch("/api/articles/:article_id", patchVotesOnArticle)
 app.delete("/api/articles/:article_id", deleteArticle)
 
 app.get("/api/users", getUsers)
+
+app.patch("/api/users/:username", patchUser)
 
 app.get("/api/users/:username/comments", getCommentsByUsername)
 
