@@ -1323,4 +1323,84 @@ describe("Users", () => {
         });
     });
   });
+  describe("POST Users", () => {
+    test("POST: 201 - should successfully create new user", () => {
+      const newUser = {
+        username: "test_user",
+        name: "mrTest",
+        avatar_url:
+          "https://media.gettyimages.com/id/1003490146/vector/man-wearing-a-fedora.jpg?s=612x612&w=gi&k=20&c=cC9QwznKH7TdwCDh3N8AtdNkD-Ox8Upk1NY2XcgG98w=",
+      };
+      return request(app)
+        .post("/api/users")
+        .send(newUser)
+        .expect(201)
+        .then(({ body: { user } }) => {
+          expect(user).toEqual(newUser);
+        });
+    });
+    test("POST: 201 - successfully adds new user to a table", () => {
+      const newUser = {
+        username: "test_user",
+        name: "mrTest",
+        avatar_url:
+          "https://media.gettyimages.com/id/1003490146/vector/man-wearing-a-fedora.jpg?s=612x612&w=gi&k=20&c=cC9QwznKH7TdwCDh3N8AtdNkD-Ox8Upk1NY2XcgG98w=",
+      };
+      return request(app)
+        .post("/api/users")
+        .send(newUser)
+        .expect(201)
+        .then(({ body: { user } }) => {
+          return db.query(`SELECT * FROM users`)
+          .then(({rows}) => {
+            expect(rows.length).toBe(5)
+          })
+        });
+    })
+    test("POST: 201 - ignores unneccessary keys", () => {
+      const newUser = {
+        username: "test_user",
+        name: "mrTest",
+        avatar_url:
+          "https://media.gettyimages.com/id/1003490146/vector/man-wearing-a-fedora.jpg?s=612x612&w=gi&k=20&c=cC9QwznKH7TdwCDh3N8AtdNkD-Ox8Upk1NY2XcgG98w=",
+        notAKey: "irrelevant"
+      };
+      return request(app)
+        .post("/api/users")
+        .send(newUser)
+        .expect(201)
+        .then(({ body: { user } }) => {
+          expect(user).toEqual({
+            username: "test_user",
+            name: "mrTest",
+            avatar_url:
+              "https://media.gettyimages.com/id/1003490146/vector/man-wearing-a-fedora.jpg?s=612x612&w=gi&k=20&c=cC9QwznKH7TdwCDh3N8AtdNkD-Ox8Upk1NY2XcgG98w="});
+        });
+    })
+    test("POST: 201 - successfully posts user without avatar_url", () => {
+      const newUser = {
+        username: "test_user",
+        name: "mrTest",
+      };
+      return request(app)
+        .post("/api/users")
+        .send(newUser)
+        .expect(201)
+        .then(({ body: { user } }) => {
+          expect(user).toEqual({...newUser, avatar_url: null});
+        });
+    })
+    test("POST: 400 - responds 400 Bad Request when User object is missing required keys", () => {
+      const faultyUser = {
+        irrelevantKey: "not-a-key"
+      }
+      return request(app)
+      .post("/api/users")
+      .send(faultyUser)
+      .expect(400)
+      .then(({body: {msg}}) => {
+        expect(msg).toBe("Bad Request - Missing Required Data")
+      })
+    })
+  });
 });
