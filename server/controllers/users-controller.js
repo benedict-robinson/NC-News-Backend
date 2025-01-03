@@ -50,7 +50,6 @@ exports.patchUser = (req, res, next) => {
       res.status(200).send({ user: rows[0] });
     })
     .catch((err) => {
-      console.log({ err });
       next(err);
     });
 };
