@@ -1296,6 +1296,24 @@ describe("Users", () => {
           });
         });
     });
+    test("PATCH: 200 - successfully updates only one key", () => {
+      const updatedUser = {
+        avatar_url:
+          "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+      };
+      return request(app)
+        .patch("/api/users/rogersop")
+        .send(updatedUser)
+        .expect(200)
+        .then(({ body: { user } }) => {
+          expect(user).toEqual({
+            username: "rogersop",
+            name: "paul",
+            avatar_url:
+              "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+          });
+        });
+    })
     test("PATCH: 400 - responds 400 Bad Request when neither updatable key is present", () => {
       const updatedUser = {
         not_a_key: "irrelevant key",
