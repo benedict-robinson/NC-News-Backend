@@ -1257,7 +1257,7 @@ describe("Users", () => {
     });
   });
   describe("PATCH Users/:username", () => {
-    test.only("PATCH 200 - successfully updates username, name and avatar_url and returns the new object", () => {
+    test("PATCH 200 - successfully updates username, name and avatar_url and returns the new object", () => {
       const updatedUser = {
         name: "new_user_name",
         avatar_url:
