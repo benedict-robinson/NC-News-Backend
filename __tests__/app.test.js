@@ -1268,13 +1268,58 @@ describe("Users", () => {
         .send(updatedUser)
         .expect(200)
         .then(({ body: { user } }) => {
-          console.log(user);
           expect(user).toEqual({
             username: "rogersop",
             name: "new_user_name",
             avatar_url:
               "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
           });
+        });
+    });
+    test("PATCH: 200 - works with unnecessary keys", () => {
+      const updatedUser = {
+        name: "new_user_name",
+        avatar_url:
+          "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+        not_a_key: "irrelevant key",
+      };
+      return request(app)
+        .patch("/api/users/rogersop")
+        .send(updatedUser)
+        .expect(200)
+        .then(({ body: { user } }) => {
+          expect(user).toEqual({
+            username: "rogersop",
+            name: "new_user_name",
+            avatar_url:
+              "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+          });
+        });
+    });
+    test("PATCH: 400 - responds 400 Bad Request when neither updatable key is present", () => {
+      const updatedUser = {
+        not_a_key: "irrelevant key",
+      };
+      return request(app)
+        .patch("/api/users/rogersop")
+        .send(updatedUser)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad Request");
+        });
+    });
+    test("PATCH: 404 - responds 404 Not Found when given a non-existent username", () => {
+      const updatedUser = {
+        name: "new_user_name",
+        avatar_url:
+          "https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png",
+      };
+      return request(app)
+        .patch("/api/users/not-a-username")
+        .send(updatedUser)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("User Not Found");
         });
     });
   });
