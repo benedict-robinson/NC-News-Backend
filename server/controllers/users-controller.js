@@ -35,16 +35,8 @@ exports.getCommentsByUsername = (req, res, next) => {
 
 exports.patchUser = (req, res, next) => {
   const { username } = req.params;
-  const newUser = req.body;
-  const userArr = [];
-  for (const key in newUser) {
-    if (key === "name") {
-      userArr[0] = newUser[key];
-    }
-    if (key === "avatar_url") {
-      userArr[1] = newUser[key];
-    }
-  }
+  const { name, avatar_url } = req.body;
+  const userArr = [name, avatar_url];
   updateUser(userArr, username)
     .then(({ rows }) => {
       res.status(200).send({ user: rows[0] });
@@ -53,3 +45,5 @@ exports.patchUser = (req, res, next) => {
       next(err);
     });
 };
+
+
