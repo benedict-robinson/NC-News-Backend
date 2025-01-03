@@ -6,6 +6,7 @@ const {
 const db = require("../../db/connection.js");
 const { response } = require("../app.js");
 const { updateUser } = require("../models/patch-user.js");
+const { insertUser } = require("../models/post-user.js");
 
 exports.getUsers = (req, res, next) => {
   const { username } = req.query;
@@ -46,4 +47,18 @@ exports.patchUser = (req, res, next) => {
     });
 };
 
-
+exports.postUser = (req, res, next) => {
+  const { username, name, avatar_url } = req.body;
+  let error = false
+  if (!username || !name) {
+    error = true
+  }
+  const userArray = [username, name, ...(avatar_url ? [avatar_url] : [])];
+  insertUser(userArray, error)
+    .then((response) => {
+      res.status(201).send({ user: response });
+    })
+    .catch((err) => {
+      next(err);
+    });
+};
