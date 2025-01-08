@@ -37,7 +37,7 @@ exports.selectArticles = (sort_by = "created_at", order = "asc", defaultOrder, t
         if (topic && author) whereQuery.push(`AND `)
         if (author) whereQuery.push(`articles.author = '${author}' `)
 
-        const selectArticlesQuery = `SELECT articles.article_id, articles.title, articles.author, articles.topic, articles.created_at, articles.votes, articles.article_img_url, comments.comment_id
+        const selectArticlesQuery = `SELECT articles.article_id, articles.title, articles.author, articles.body, articles.topic, articles.created_at, articles.votes, articles.article_img_url, comments.comment_id
         FROM articles
         LEFT JOIN comments ON comments.article_id = articles.article_id
         ${whereQuery.join("")}
