@@ -180,6 +180,7 @@ describe("Articles", () => {
             "article_id",
             "title",
             "author",
+            "body",
             "topic",
             "created_at",
             "votes",
@@ -194,6 +195,7 @@ describe("Articles", () => {
             expect(typeof article.topic).toBe("string");
             expect(typeof article.votes).toBe("number");
             expect(typeof article.comment_count).toBe("number");
+            expect(typeof article.body).toBe("string")
           });
         });
     });
@@ -398,20 +400,35 @@ describe("Articles", () => {
       });
       test("GET: 400 - responds with 400 Bad Request when given an invalid author query value", () => {
         return request(app)
-          .get("/api/articles?author=4")
-          .expect(400)
-          .then(({ body }) => {
-            expect(body.msg).toBe("Bad Request - Invalid Username");
-          });
+        .get("/api/articles?author=4")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("Bad Request - Invalid Username");
+        });
       });
       test("GET: 404 - responds with 404 Not Found when given a valid but non-existent topic query", () => {
         return request(app)
-          .get("/api/articles?author=dutch_cheese")
-          .expect(404)
-          .then(({ body }) => {
-            expect(body.msg).toBe("User Not Found");
-          });
+        .get("/api/articles?author=dutch_cheese")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("User Not Found");
+        });
       });
+      test("Search - responds with a list of articles filtered by search terms (both title and body)", () => {
+        return request(app)
+        .get("/api/articles?search=mitch")
+        .expect(200)
+        .then(({body: {articles}}) => {
+          expect(articles).toHaveLength(6)
+          const ids = articles.map(article => article.article_id)
+          expect(ids).toContain(2)
+          expect(ids).toContain(3)
+          expect(ids).toContain(4)
+          expect(ids).toContain(8)
+          expect(ids).toContain(10)
+          expect(ids).toContain(13)
+        })
+      })
       test("GET: 200 - topic & author queries can be chained", () => {
         return request(app)
           .get("/api/articles?author=rogersop&topic=mitch")
@@ -435,6 +452,24 @@ describe("Articles", () => {
             body.articles.forEach((article) => {
               expect(article.topic).toBe("mitch");
               expect(article.author).toBe("rogersop");
+            });
+            expect(body.articles).toBeSorted({
+              key: "title",
+              descending: true,
+            });
+          });
+      });
+      test("GET: 200 - all queries can be chained including search", () => {
+        return request(app)
+          .get(
+            "/api/articles?search=mitch&author=icellusedkars&topic=mitch&sort_by=title&order=desc"
+          )
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.articles).toHaveLength(3);
+            body.articles.forEach((article) => {
+              expect(article.topic).toBe("mitch");
+              expect(article.author).toBe("icellusedkars");
             });
             expect(body.articles).toBeSorted({
               key: "title",

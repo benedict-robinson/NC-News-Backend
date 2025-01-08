@@ -7,7 +7,7 @@ const { deleteArticleById} = require("../models/delete-article-model.js")
 const { insertArticle } = require("../models/post-article.js")
 
 exports.getArticles = (req, res, next) => {
-    const { sort_by, order, topic, author} = req.query
+    const { sort_by, order, topic, author, search} = req.query
     
     let defaultOrder = true
     if (!sort_by || sort_by === 'votes' || sort_by === 'created_at') {
@@ -15,7 +15,7 @@ exports.getArticles = (req, res, next) => {
             defaultOrder = false
         }
     }
-    const validQueries = ['sort_by', 'order', 'topic', 'author']
+    const validQueries = ['sort_by', 'order', 'topic', 'author', 'search']
     const queries = Object.keys(req.query)
     queries.forEach(query => {
         if (!validQueries.includes(query)) {
@@ -29,7 +29,17 @@ exports.getArticles = (req, res, next) => {
         }
     })
     selectArticles(sort_by, order, defaultOrder, topic, author).then((response) => {
-        res.status(200).send({articles: response})
+        let articles = [...response]
+        if (search) {
+            const searchRegex = new RegExp(search, 'i')
+            const filteredArticles = articles.filter((article) => {
+                const title = article.title
+                const body = article.body
+                return searchRegex.test(title) || searchRegex.test(body) 
+            })
+            articles = filteredArticles
+        }
+        res.status(200).send({articles: articles})
     })
     .catch((err) => {
         next(err)
